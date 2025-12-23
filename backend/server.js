@@ -54,7 +54,8 @@ const allowedOrigins = [
   'http://localhost:8100',  // Ionic dev server
   'http://localhost:4200',  // Angular dev server
   'https://surgician.com',
-  'https://www.surgician.com'
+  'https://www.surgician.com',
+  'https://prescriptionpro.onrender.com'
 ];
 
 app.use(cors({
