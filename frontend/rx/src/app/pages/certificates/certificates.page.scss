@@ -1,0 +1,468 @@
+.certificates-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+// Statistics Cards
+.stats-cards {
+  margin-bottom: 24px;
+  
+  .stat-card {
+    border-radius: 12px;
+    text-align: center;
+    height: 100%;
+    
+    ion-card-content {
+      padding: 20px;
+      
+      h2 {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: white;
+      }
+      
+      p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+}
+
+// Search and Filter Bar
+.search-filter-bar {
+  margin-bottom: 16px;
+  
+  .certificate-searchbar {
+    padding: 0;
+    margin-bottom: 12px;
+  }
+  
+  .filter-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    
+    ion-button {
+      height: 40px;
+      
+      ion-badge {
+        margin-left: 8px;
+      }
+    }
+    
+    .sort-select {
+      min-width: 150px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+    }
+  }
+}
+
+// Quick Filters
+.quick-filters, .quick-date-filters {
+  margin-bottom: 20px;
+  
+  ion-segment {
+    --background: var(--ion-color-light);
+    border-radius: 8px;
+    padding: 4px;
+    
+    ion-segment-button {
+      --background-checked: var(--ion-color-primary);
+      --color: var(--ion-color-medium);
+      --color-checked: white;
+      min-height: 36px;
+      font-size: 12px;
+      text-transform: none;
+      
+      &::part(indicator) {
+        height: 100%;
+        border-radius: 6px;
+      }
+      
+      ion-icon {
+        margin-right: 4px;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+// Loading State
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  
+  ion-spinner {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    font-size: 16px;
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  
+  ion-icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0 0 20px 0;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// List View
+.certificates-list {
+  background: transparent;
+  
+  .certificate-item {
+    --background: white;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    --padding-start: 16px;
+    --inner-padding-end: 16px;
+    border-left: 4px solid;
+    
+    &[color="primary"] {
+      border-left-color: var(--ion-color-primary);
+    }
+    
+    &[color="success"] {
+      border-left-color: var(--ion-color-success);
+    }
+    
+    &[color="warning"] {
+      border-left-color: var(--ion-color-warning);
+    }
+    
+    &[color="danger"] {
+      border-left-color: var(--ion-color-danger);
+    }
+    
+    .certificate-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      
+      &.medical {
+        background: var(--ion-color-primary);
+      }
+      
+      &.fitness {
+        background: var(--ion-color-success);
+      }
+      
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+    
+    h2 {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin-bottom: 8px;
+      
+      .patient-age {
+        color: var(--ion-color-medium);
+        font-weight: normal;
+        margin-left: 8px;
+      }
+      
+      .status-badge {
+        margin-left: 12px;
+        font-size: 10px;
+        padding: 4px 8px;
+        text-transform: uppercase;
+      }
+    }
+    
+    .certificate-id {
+      display: flex;
+      align-items: center;
+      color: var(--ion-color-medium);
+      font-size: 12px;
+      font-weight: 500;
+      margin: 4px 0;
+      
+      ion-icon {
+        margin-right: 6px;
+        font-size: 14px;
+      }
+    }
+    
+    .certificate-summary {
+      color: var(--ion-color-dark);
+      font-size: 14px;
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+    
+    .certificate-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+      
+      span {
+        display: flex;
+        align-items: center;
+        color: var(--ion-color-medium);
+        font-size: 12px;
+        
+        ion-icon {
+          margin-right: 4px;
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .days-remaining {
+      font-weight: 600;
+      font-size: 14px;
+      text-align: center;
+      min-width: 60px;
+    }
+  }
+}
+
+// Grid View
+.certificates-grid {
+  .certificate-card {
+    border-radius: 12px;
+    margin-bottom: 16px;
+    height: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    .card-header {
+      background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
+      padding: 16px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      
+      &[color="success"] {
+        background: linear-gradient(135deg, var(--ion-color-success) 0%, #2dd36f 100%);
+      }
+      
+      .header-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        ion-icon {
+          font-size: 20px;
+          color: white;
+        }
+      }
+      
+      .header-content {
+        flex: 1;
+        
+        h3 {
+          color: white;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+          font-size: 18px;
+        }
+        
+        .patient-details {
+          color: rgba(255, 255, 255, 0.9);
+          font-size: 12px;
+          margin: 0;
+        }
+      }
+      
+      .status-badge {
+        font-size: 10px;
+        padding: 4px 8px;
+        text-transform: uppercase;
+      }
+    }
+    
+    ion-card-content {
+      padding: 16px;
+      
+      .certificate-content {
+        .type-section {
+          margin-bottom: 12px;
+          
+          h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ion-color-dark);
+            margin: 0 0 8px 0;
+          }
+        }
+        
+        .summary-section {
+          p {
+            color: var(--ion-color-medium);
+            font-size: 14px;
+            margin: 0 0 12px 0;
+            line-height: 1.4;
+          }
+        }
+        
+        .diagnosis-section {
+          margin-bottom: 12px;
+          
+          p {
+            font-size: 14px;
+            color: var(--ion-color-dark);
+            margin: 0;
+            
+            strong {
+              color: var(--ion-color-primary);
+            }
+          }
+        }
+        
+        .details-section {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-top: 16px;
+          padding-top: 12px;
+          border-top: 1px solid var(--ion-color-light);
+          
+          .detail-item {
+            display: flex;
+            align-items: center;
+            color: var(--ion-color-medium);
+            font-size: 12px;
+            
+            ion-icon {
+              margin-right: 6px;
+              font-size: 14px;
+              color: var(--ion-color-primary);
+            }
+          }
+        }
+      }
+      
+      .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--ion-color-light);
+        
+        .days-remaining {
+          font-size: 14px;
+          font-weight: 600;
+          padding: 4px 12px;
+          border-radius: 20px;
+          background: var(--ion-color-light);
+        }
+        
+        .card-actions {
+          display: flex;
+          gap: 4px;
+        }
+      }
+    }
+  }
+}
+
+// Create New Section
+.create-new-section {
+  margin: 24px 0;
+  
+  .create-new-button {
+    height: 50px;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+}
+
+
+
+// Responsive Design
+@media (max-width: 768px) {
+  .certificates-container {
+    padding: 8px;
+  }
+  
+  .stats-cards {
+    .stat-card {
+      ion-card-content {
+        padding: 16px;
+        
+        h2 {
+          font-size: 24px;
+        }
+        
+        p {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+  
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch !important;
+    
+    ion-button, .sort-select {
+      width: 100%;
+    }
+  }
+  
+  .certificate-meta {
+    flex-direction: column;
+    gap: 8px !important;
+  }
+  
+  .certificate-card {
+    .card-footer {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start !important;
+    }
+  }
+}

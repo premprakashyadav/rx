@@ -1,0 +1,395 @@
+.create-prescription-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  
+  ion-spinner {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    font-size: 16px;
+  }
+}
+
+.section-card {
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  ion-card-header {
+    background: var(--ion-color-light);
+    border-radius: 12px 12px 0 0;
+    padding: 16px;
+    
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      
+      ion-icon {
+        margin-right: 12px;
+        font-size: 20px;
+        color: var(--ion-color-primary);
+      }
+    }
+    
+    ion-card-subtitle {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      margin-top: 4px;
+    }
+  }
+  
+  ion-card-content {
+    padding: 20px;
+  }
+}
+
+.form-item {
+  margin-bottom: 16px;
+  --background: #f8f9fa;
+  border-radius: 10px;
+  
+  ion-icon[slot="start"] {
+    margin-right: 16px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Patient Selection Styles
+.patient-selection {
+  .selected-patient {
+    margin: 16px 0;
+    
+    .patient-info-display {
+      --background: #e8f4fd;
+      border-radius: 10px;
+      border: 2px solid var(--ion-color-primary);
+      
+      .patient-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--ion-color-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 18px;
+      }
+      
+      h2 {
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin-bottom: 4px;
+      }
+      
+      p {
+        color: var(--ion-color-medium);
+        font-size: 14px;
+        margin: 2px 0;
+      }
+    }
+  }
+  
+  .or-divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    
+    &::before, &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--ion-color-light);
+    }
+    
+    span {
+      padding: 0 16px;
+      color: var(--ion-color-medium);
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}
+
+.new-patient-form {
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+// Medicine Section Styles
+.medicine-row {
+  margin-bottom: 16px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  .medicine-card {
+    border-left: 4px solid var(--ion-color-primary);
+    border-radius: 10px;
+    
+    ion-card-header {
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-radius: 10px 10px 0 0;
+      
+      ion-card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+  
+  .medicine-search {
+    position: relative;
+    
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--ion-color-light);
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      
+      ion-list {
+        padding: 0;
+      }
+      
+      ion-item {
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --inner-padding-end: 0;
+        
+        h3 {
+          font-size: 14px;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+        }
+        
+        p {
+          font-size: 12px;
+          color: var(--ion-color-medium);
+          margin: 2px 0;
+        }
+      }
+    }
+    
+    .external-search-toggle {
+      margin-top: 8px;
+      text-align: center;
+    }
+    
+    .external-search {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--ion-color-light);
+    }
+  }
+}
+
+// Investigation Section Styles
+.investigation-row {
+  margin-bottom: 16px;
+  
+  .investigation-card {
+    border-left: 4px solid var(--ion-color-success);
+    border-radius: 10px;
+    
+    ion-card-header {
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-radius: 10px 10px 0 0;
+      
+      ion-card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+}
+
+// Consent Card Styles
+.consent-card {
+  border-left: 4px solid var(--ion-color-warning);
+  
+  &.consent-accepted {
+    border-left-color: var(--ion-color-success);
+    background: #f8fff8;
+    
+    .consent-content {
+      ion-checkbox {
+        --checkbox-background-checked: var(--ion-color-success);
+        --border-color-checked: var(--ion-color-success);
+      }
+    }
+  }
+  
+  .consent-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    
+    ion-checkbox {
+      margin-top: 4px;
+      --size: 24px;
+      --checkbox-background: #f8f9fa;
+      --border-radius: 4px;
+    }
+    
+    .consent-text {
+      flex: 1;
+      
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin: 0 0 12px 0;
+      }
+      
+      p {
+        color: var(--ion-color-medium);
+        font-size: 14px;
+        margin: 8px 0;
+      }
+      
+      ul {
+        margin: 8px 0;
+        padding-left: 20px;
+        
+        li {
+          color: var(--ion-color-medium);
+          font-size: 14px;
+          margin: 4px 0;
+        }
+      }
+      
+      .consent-warning {
+        display: flex;
+        align-items: center;
+        color: var(--ion-color-danger);
+        font-weight: 500;
+        
+        ion-icon {
+          margin-right: 8px;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+  
+  .consent-error {
+    display: flex;
+    align-items: center;
+    color: var(--ion-color-danger);
+    font-size: 14px;
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(var(--ion-color-danger-rgb), 0.1);
+    border-radius: 8px;
+    
+    ion-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+  }
+}
+
+// Common Styles
+.add-button-section {
+  margin-top: 20px;
+  
+  ion-button {
+    --border-style: dashed;
+    --border-width: 2px;
+  }
+}
+
+.submit-section {
+  margin-top: 32px;
+  margin-bottom: 40px;
+  
+  ion-button {
+    margin-bottom: 12px;
+    height: 56px;
+    font-weight: 600;
+    font-size: 16px;
+    
+    &:disabled {
+      opacity: 0.7;
+    }
+    
+    &[color="primary"] {
+      --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .create-prescription-container {
+    padding: 8px;
+  }
+  
+  .section-card {
+    margin-bottom: 16px;
+    
+    ion-card-content {
+      padding: 16px;
+    }
+  }
+  
+  .medicine-search {
+    .search-results {
+      position: fixed !important;
+      top: 50% !important;
+      left: 16px !important;
+      right: 16px !important;
+      max-height: 60vh !important;
+      transform: translateY(-50%);
+    }
+  }
+  
+  .consent-content {
+    flex-direction: column;
+    gap: 12px !important;
+    
+    ion-checkbox {
+      align-self: flex-start;
+    }
+  }
+}

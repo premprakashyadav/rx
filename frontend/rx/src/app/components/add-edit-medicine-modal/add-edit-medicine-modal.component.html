@@ -1,0 +1,158 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>{{mode === 'add' ? 'Add New Medicine' : 'Edit Medicine'}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="medicineForm" (ngSubmit)="submit()">
+    <ion-grid>
+      <!-- Medicine Name -->
+      <ion-row>
+        <ion-col size="12">
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Medicine Name *</ion-label>
+            <ion-input 
+              type="text" 
+              formControlName="name"
+              placeholder="Enter medicine name">
+            </ion-input>
+            <ion-icon name="medical-outline" slot="start"></ion-icon>
+            <ion-note slot="error" *ngIf="medicineForm.get('name')?.touched && medicineForm.get('name')?.errors">
+              Medicine name is required
+            </ion-note>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- Generic Name -->
+      <ion-row>
+        <ion-col size="12">
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Generic Name</ion-label>
+            <ion-input 
+              type="text" 
+              formControlName="generic_name"
+              placeholder="Scientific/generic name">
+            </ion-input>
+            <ion-icon name="flask-outline" slot="start"></ion-icon>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- Brand and Strength -->
+      <ion-row>
+        <ion-col size="12" size-md="6">
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Brand Name</ion-label>
+            <ion-input 
+              type="text" 
+              formControlName="brand"
+              placeholder="Brand/company name">
+            </ion-input>
+            <ion-icon name="pricetag-outline" slot="start"></ion-icon>
+          </ion-item>
+        </ion-col>
+
+        <ion-col size="12" size-md="6">
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Strength</ion-label>
+            <ion-input 
+              type="text" 
+              formControlName="strength"
+              placeholder="e.g., 500mg, 10mg/ml">
+            </ion-input>
+            <ion-icon name="barbell-outline" slot="start"></ion-icon>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- Form and Manufacturer -->
+      <ion-row>
+        <ion-col size="12" size-md="6">
+          <ion-item lines="full" class="form-item">
+            <ion-label>Form</ion-label>
+            <ion-select 
+              formControlName="form"
+              interface="action-sheet">
+              <ion-select-option value="">Select Form</ion-select-option>
+              <ion-select-option *ngFor="let form of medicineForms" [value]="form">
+                {{form}}
+              </ion-select-option>
+            </ion-select>
+            <ion-icon name="cube-outline" slot="start"></ion-icon>
+          </ion-item>
+        </ion-col>
+
+        <ion-col size="12" size-md="6">
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Manufacturer</ion-label>
+            <ion-input 
+              type="text" 
+              formControlName="manufacturer"
+              placeholder="Company name">
+            </ion-input>
+            <ion-icon name="business-outline" slot="start"></ion-icon>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- Schedule -->
+      <ion-row>
+        <ion-col size="12">
+          <ion-item lines="full" class="form-item">
+            <ion-label>Schedule Category</ion-label>
+            <ion-select 
+              formControlName="schedule"
+              interface="action-sheet">
+              <ion-select-option *ngFor="let schedule of schedules" [value]="schedule.value">
+                {{schedule.label}}
+              </ion-select-option>
+            </ion-select>
+            <ion-icon name="warning-outline" slot="start"></ion-icon>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- Status (for edit mode) -->
+      <ion-row *ngIf="mode === 'edit'">
+        <ion-col size="12">
+          <ion-item lines="full" class="form-item">
+            <ion-label>Status</ion-label>
+            <ion-toggle 
+              formControlName="is_active"
+              slot="end">
+            </ion-toggle>
+            <ion-icon name="power-outline" slot="start"></ion-icon>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Action Buttons -->
+    <div class="modal-actions">
+      <ion-button 
+        expand="block" 
+        type="submit" 
+        color="primary"
+        [disabled]="medicineForm.invalid || isLoading">
+        <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        <span *ngIf="!isLoading">{{mode === 'add' ? 'Add' : 'Update'}} Medicine</span>
+      </ion-button>
+      
+      <ion-button 
+        expand="block" 
+        fill="clear" 
+        color="medium"
+        (click)="dismiss()"
+        [disabled]="isLoading">
+        Cancel
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

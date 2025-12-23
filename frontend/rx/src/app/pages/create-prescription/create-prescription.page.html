@@ -1,0 +1,572 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Create Prescription</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="prescriptionForm" (ngSubmit)="submitPrescription()">
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-section">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading prescription form...</p>
+    </div>
+
+    <div *ngIf="!isLoading">
+      <!-- Patient Information Section -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="person-outline" slot="start"></ion-icon>
+            Patient Information
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <!-- Select Existing Patient -->
+          <div *ngIf="!isNewPatient" class="patient-selection">
+            <ion-item lines="none">
+              <ion-label>Select Existing Patient</ion-label>
+              <ion-button slot="end" color="primary" (click)="selectPatient()">
+                <ion-icon name="search-outline" slot="start"></ion-icon>
+                Select Patient
+              </ion-button>
+            </ion-item>
+            
+            <div *ngIf="selectedPatient" class="selected-patient">
+              <ion-item lines="none" class="patient-info-display">
+                <ion-avatar slot="start">
+                  <div class="patient-avatar">
+                    {{ getPatientInitials() }}
+                  </div>
+                </ion-avatar>
+                <ion-label>
+                  <h2>{{selectedPatient.full_name}}</h2>
+                  <p>
+                    {{selectedPatient.age}} yrs • {{selectedPatient.sex}}
+                    <span *ngIf="selectedPatient.mobile"> • {{selectedPatient.mobile}}</span>
+                  </p>
+                  <p *ngIf="selectedPatient.patient_id">ID: {{selectedPatient.patient_id}}</p>
+                </ion-label>
+                <ion-button slot="end" fill="clear" color="medium" (click)="selectedPatient = null">
+                  <ion-icon name="close-outline"></ion-icon>
+                </ion-button>
+              </ion-item>
+            </div>
+            
+            <div class="or-divider">
+              <span>OR</span>
+            </div>
+            
+            <ion-button expand="block" fill="outline" color="primary" (click)="toggleNewPatient()">
+              <ion-icon name="person-add-outline" slot="start"></ion-icon>
+              Add New Patient
+            </ion-button>
+          </div>
+
+          <!-- New Patient Form -->
+          <div *ngIf="isNewPatient" class="new-patient-form">
+            <div class="form-header">
+              <h3>New Patient Details</h3>
+              <ion-button fill="clear" size="small" color="medium" (click)="toggleNewPatient()">
+                <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+                Select Existing
+              </ion-button>
+            </div>
+            
+            <div formGroupName="patient_info">
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="12" size-md="6">
+                    <ion-item lines="full" class="form-item">
+                      <ion-label position="floating">Full Name *</ion-label>
+                      <ion-input 
+                        type="text" 
+                        formControlName="full_name"
+                        placeholder="Patient's full name">
+                      </ion-input>
+                      <ion-icon name="person-outline" slot="start"></ion-icon>
+                    </ion-item>
+                  </ion-col>
+
+                  <ion-col size="12" size-md="3">
+                    <ion-item lines="full" class="form-item">
+                      <ion-label position="floating">Age *</ion-label>
+                      <ion-input 
+                        type="number" 
+                        formControlName="age"
+                        placeholder="Age">
+                      </ion-input>
+                      <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                    </ion-item>
+                  </ion-col>
+
+                  <ion-col size="12" size-md="3">
+                    <ion-item lines="full" class="form-item">
+                      <ion-label>Sex *</ion-label>
+                      <ion-select 
+                        formControlName="sex"
+                        interface="action-sheet">
+                        <ion-select-option value="">Select</ion-select-option>
+                        <ion-select-option value="male">Male</ion-select-option>
+                        <ion-select-option value="female">Female</ion-select-option>
+                        <ion-select-option value="other">Other</ion-select-option>
+                      </ion-select>
+                      <ion-icon name="transgender-outline" slot="start"></ion-icon>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="12" size-md="6">
+                    <ion-item lines="full" class="form-item">
+                      <ion-label position="floating">Mobile Number</ion-label>
+                      <ion-input 
+                        type="tel" 
+                        formControlName="mobile"
+                        placeholder="Mobile (optional)">
+                      </ion-input>
+                      <ion-icon name="call-outline" slot="start"></ion-icon>
+                    </ion-item>
+                  </ion-col>
+
+                  <ion-col size="12" size-md="6">
+                    <ion-item lines="full" class="form-item">
+                      <ion-label position="floating">Email</ion-label>
+                      <ion-input 
+                        type="email" 
+                        formControlName="email"
+                        placeholder="Email (optional)">
+                      </ion-input>
+                      <ion-icon name="mail-outline" slot="start"></ion-icon>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Medical Information Section -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="medkit-outline" slot="start"></ion-icon>
+            Medical Information
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Chief Complaint *</ion-label>
+                  <ion-textarea 
+                    formControlName="chief_complaint"
+                    placeholder="Main symptoms and duration"
+                    rows="2"
+                    auto-grow>
+                  </ion-textarea>
+                  <ion-icon name="warning-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">History of Present Illness</ion-label>
+                  <ion-textarea 
+                    formControlName="history_of_present_illness"
+                    placeholder="Detailed history of current illness"
+                    rows="2"
+                    auto-grow>
+                  </ion-textarea>
+                  <ion-icon name="time-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Past Medical History</ion-label>
+                  <ion-textarea 
+                    formControlName="past_medical_history"
+                    placeholder="Previous medical conditions"
+                    rows="2"
+                    auto-grow>
+                  </ion-textarea>
+                  <ion-icon name="medical-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Past Surgical History</ion-label>
+                  <ion-textarea 
+                    formControlName="past_surgical_history"
+                    placeholder="Previous surgeries"
+                    rows="2"
+                    auto-grow>
+                  </ion-textarea>
+                  <ion-icon name="cut-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Diagnosis / Provisional Diagnosis</ion-label>
+                  <ion-textarea 
+                    formControlName="diagnosis"
+                    placeholder="Diagnosis based on examination"
+                    rows="2"
+                    auto-grow>
+                  </ion-textarea>
+                  <ion-icon name="document-text-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Medicines Section -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="medical-outline" slot="start"></ion-icon>
+            Medicines / Treatment
+          </ion-card-title>
+          <ion-card-subtitle>Add medicines with dosage, frequency, and duration</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <!-- Medicines List -->
+          <div formArrayName="medicines">
+            <div *ngFor="let medicine of medicinesArray.controls; let i = index" [formGroupName]="i" class="medicine-row">
+              <ion-card class="medicine-card">
+                <ion-card-header>
+                  <ion-card-title>Medicine {{i + 1}}</ion-card-title>
+                  <ion-button slot="end" fill="clear" color="danger" size="small" (click)="removeMedicine(i)" *ngIf="medicinesArray.length > 1">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-grid>
+                    <!-- Medicine Search -->
+                    <ion-row>
+                      <ion-col size="12">
+                        <div class="medicine-search">
+                          <ion-item lines="full" class="form-item">
+                            <ion-label position="floating">Medicine Name *</ion-label>
+                            <ion-input 
+                              type="text" 
+                              formControlName="name"
+                              placeholder="Search medicine"
+                              (ionInput)="searchMedicines($event, i)">
+                            </ion-input>
+                            <ion-icon name="search-outline" slot="start"></ion-icon>
+                            <ion-button slot="end" fill="clear" size="small" color="primary" (click)="openAddMedicineModal(i)">
+                              <ion-icon name="add-outline"></ion-icon>
+                            </ion-button>
+                          </ion-item>
+                          
+                          <!-- Search Results -->
+                          <div class="search-results" *ngIf="medicineSearchResults.length > 0">
+                            <ion-list>
+                              <ion-item *ngFor="let med of medicineSearchResults" button (click)="selectMedicine(med, i)">
+                                <ion-label>
+                                  <h3>{{med.name}}</h3>
+                                  <p *ngIf="med.generic_name">{{med.generic_name}}</p>
+                                  <p *ngIf="med.strength">{{med.strength}}</p>
+                                </ion-label>
+                              </ion-item>
+                            </ion-list>
+                          </div>
+                          
+                          <!-- External Medicine Search Toggle -->
+                          <div class="external-search-toggle">
+                            <ion-button fill="clear" size="small" (click)="showExternalMedicineSearch = !showExternalMedicineSearch">
+                              <ion-icon name="globe-outline" slot="start"></ion-icon>
+                              {{showExternalMedicineSearch ? 'Hide External Search' : 'Search External Database'}}
+                            </ion-button>
+                          </div>
+                          
+                          <!-- External Medicine Search -->
+                          <div *ngIf="showExternalMedicineSearch" class="external-search">
+                            <ion-item lines="full" class="form-item">
+                              <ion-input 
+                                type="text" 
+                                placeholder="Search external medicine database"
+                                (ionInput)="searchExternalMedicines($event, i)">
+                              </ion-input>
+                              <ion-icon name="globe-outline" slot="start"></ion-icon>
+                            </ion-item>
+                            
+                            <!-- External Search Results -->
+                            <div class="search-results" *ngIf="externalMedicineSearchResults.length > 0">
+                              <ion-list>
+                                <ion-item *ngFor="let med of externalMedicineSearchResults" button (click)="selectExternalMedicine(med, i)">
+                                  <ion-label>
+                                    <h3>{{med.name}}</h3>
+                                    <p *ngIf="med.generic_name">{{med.generic_name}}</p>
+                                    <p *ngIf="med.strength">{{med.strength}}</p>
+                                    <p *ngIf="med.manufacturer">{{med.manufacturer}}</p>
+                                  </ion-label>
+                                  <ion-button slot="end" fill="clear" size="small" color="primary" (click)="addMedicineToDatabase(med, i)">
+                                    <ion-icon name="add-outline"></ion-icon>
+                                    Add to DB
+                                  </ion-button>
+                                </ion-item>
+                              </ion-list>
+                            </div>
+                          </div>
+                        </div>
+                      </ion-col>
+                    </ion-row>
+
+                    <!-- Medicine Details -->
+                    <ion-row>
+                      <ion-col size="12" size-md="3">
+                        <ion-item lines="full" class="form-item">
+                          <ion-label position="floating">Dosage *</ion-label>
+                          <ion-input 
+                            type="text" 
+                            formControlName="dosage"
+                            placeholder="e.g., 1 tab, 5 ml">
+                          </ion-input>
+                          <ion-icon name="flask-outline" slot="start"></ion-icon>
+                        </ion-item>
+                      </ion-col>
+
+                      <ion-col size="12" size-md="3">
+                        <ion-item lines="full" class="form-item">
+                          <ion-label position="floating">Frequency *</ion-label>
+                          <ion-input 
+                            type="text" 
+                            formControlName="frequency"
+                            placeholder="e.g., BD, TDS, QID">
+                          </ion-input>
+                          <ion-icon name="time-outline" slot="start"></ion-icon>
+                        </ion-item>
+                      </ion-col>
+
+                      <ion-col size="12" size-md="3">
+                        <ion-item lines="full" class="form-item">
+                          <ion-label position="floating">Duration *</ion-label>
+                          <ion-input 
+                            type="text" 
+                            formControlName="duration"
+                            placeholder="e.g., 5 days, 1 week">
+                          </ion-input>
+                          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                        </ion-item>
+                      </ion-col>
+
+                      <ion-col size="12" size-md="3">
+                        <ion-item lines="full" class="form-item">
+                          <ion-label position="floating">Instructions</ion-label>
+                          <ion-input 
+                            type="text" 
+                            formControlName="instructions"
+                            placeholder="e.g., After food">
+                          </ion-input>
+                          <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+                        </ion-item>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-card-content>
+              </ion-card>
+            </div>
+          </div>
+
+          <!-- Add Medicine Button -->
+          <div class="add-button-section">
+            <ion-button expand="block" fill="outline" color="primary" (click)="addMedicine()">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Add Another Medicine
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Investigations Section -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="analytics-outline" slot="start"></ion-icon>
+            Investigations Advised
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <!-- Investigations List -->
+          <div formArrayName="investigations">
+            <div *ngFor="let investigation of investigationsArray.controls; let i = index" [formGroupName]="i" class="investigation-row">
+              <ion-card class="investigation-card">
+                <ion-card-header>
+                  <ion-card-title>Investigation {{i + 1}}</ion-card-title>
+                  <ion-button slot="end" fill="clear" color="danger" size="small" (click)="removeInvestigation(i)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col size="12" size-md="6">
+                        <ion-item lines="full" class="form-item">
+                          <ion-label>Investigation Type *</ion-label>
+                          <ion-select 
+                            formControlName="investigation_id"
+                            interface="action-sheet">
+                            <ion-select-option value="">Select Investigation</ion-select-option>
+                            <ion-select-option *ngFor="let inv of investigations" [value]="inv.id">
+                              {{inv.name}} ({{inv.category}})
+                            </ion-select-option>
+                          </ion-select>
+                          <ion-icon name="analytics-outline" slot="start"></ion-icon>
+                        </ion-item>
+                      </ion-col>
+
+                      <ion-col size="12" size-md="6">
+                        <ion-item lines="full" class="form-item">
+                          <ion-label position="floating">Notes</ion-label>
+                          <ion-input 
+                            type="text" 
+                            formControlName="notes"
+                            placeholder="Additional notes">
+                          </ion-input>
+                          <ion-icon name="document-text-outline" slot="start"></ion-icon>
+                        </ion-item>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-card-content>
+              </ion-card>
+            </div>
+          </div>
+
+          <!-- Add Investigation Button -->
+          <div class="add-button-section">
+            <ion-button expand="block" fill="outline" color="primary" (click)="addInvestigation()">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Add Investigation
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Follow-up and Advice Section -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="calendar-outline" slot="start"></ion-icon>
+            Follow-up & General Advice
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="stacked">Follow-up Date</ion-label>
+                  <ion-input 
+                    type="date" 
+                    formControlName="follow_up_date"
+                    [min]="minDate"
+                    [max]="maxDate">
+                  </ion-input>
+                  <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="stacked">General Advice</ion-label>
+                  <ion-textarea 
+                    formControlName="advice"
+                    placeholder="General advice for the patient"
+                    rows="3"
+                    auto-grow>
+                  </ion-textarea>
+                  <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Consent Section -->
+      <ion-card class="section-card consent-card" [class.consent-accepted]="consentAccepted">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="shield-checkmark-outline" slot="start"></ion-icon>
+            Patient Consent
+          </ion-card-title>
+        </ion-card-header>
+      <ion-card-content>
+  <div class="consent-content">
+    <!-- REMOVE ngModel, use formControlName only -->
+    <ion-checkbox 
+      formControlName="consent_obtained"
+      (ionChange)="onConsentChange($event)">
+    </ion-checkbox>
+    
+    <div class="consent-text">
+      <h4>Consent Declaration</h4>
+      <p>I confirm that the patient was informed about:</p>
+      <ul>
+        <li>Complete treatment and prognosis of the illness</li>
+        <li>All treatment options available</li>
+        <li>Possible side effects and complications</li>
+        <li>That in case the complaint aggravates in absence of the doctor, the patient should be admitted to a hospital</li>
+      </ul>
+      <p class="consent-warning">
+        <ion-icon name="warning-outline"></ion-icon>
+        This consent is mandatory for creating a prescription.
+      </p>
+    </div>
+  </div>
+  
+  <!-- Fix error condition -->
+  <div class="consent-error" *ngIf="showConsentError()">
+    <ion-icon name="warning-outline"></ion-icon>
+    Please accept the patient consent to proceed
+  </div>
+</ion-card-content>
+      </ion-card>
+
+      <!-- Submit Button -->
+      <div class="submit-section">
+        <ion-button 
+          expand="block" 
+          type="submit" 
+          color="primary"
+          size="large"
+          [disabled]="prescriptionForm.invalid">
+          <ion-icon name="document-text-outline" slot="start"></ion-icon>
+          Create Prescription
+        </ion-button>
+        
+        <ion-button 
+          expand="block" 
+          fill="clear" 
+          color="medium"
+          (click)="resetForm()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Clear Form
+        </ion-button>
+      </div>
+    </div>
+  </form>
+</ion-content>

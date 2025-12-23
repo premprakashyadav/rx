@@ -1,0 +1,350 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Create Certificate</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="certificateForm" (ngSubmit)="generateCertificate()">
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-section">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading certificate form...</p>
+    </div>
+
+    <div *ngIf="!isLoading">
+      <!-- Certificate Type Selection -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="document-text-outline" slot="start"></ion-icon>
+            Certificate Type
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-segment 
+            formControlName="certificate_type" 
+            (ionChange)="onCertificateTypeChange()"
+            color="primary">
+            <ion-segment-button *ngFor="let type of certificateTypes" [value]="type.value">
+              <ion-icon [name]="type.icon"></ion-icon>
+              <ion-label>{{type.label}}</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Patient Selection -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="person-outline" slot="start"></ion-icon>
+            Patient Information
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="patient-selection-section">
+            <!-- Selected Patient Display -->
+            <div *ngIf="selectedPatient" class="selected-patient">
+              <ion-item lines="none" class="patient-info-display">
+                <ion-avatar slot="start">
+                  <div class="patient-avatar">
+                    {{ getPatientInitials(selectedPatient) }}
+                  </div>
+                </ion-avatar>
+                <ion-label>
+                  <h2>{{selectedPatient.full_name}}</h2>
+                  <p>
+                    {{selectedPatient.age}} yrs • {{selectedPatient.sex}}
+                    <span *ngIf="selectedPatient.mobile"> • {{selectedPatient.mobile}}</span>
+                  </p>
+                  <p *ngIf="selectedPatient.patient_id">ID: {{selectedPatient.patient_id}}</p>
+                </ion-label>
+                <ion-button slot="end" fill="clear" color="medium" (click)="selectedPatient = null; certificateForm.patchValue({patient_id: ''})">
+                  <ion-icon name="close-outline"></ion-icon>
+                </ion-button>
+              </ion-item>
+            </div>
+
+            <!-- Select Patient Button -->
+            <div *ngIf="!selectedPatient" class="select-patient-button">
+              <ion-button expand="block" color="primary" (click)="selectPatient()">
+                <ion-icon name="search-outline" slot="start"></ion-icon>
+                Select Patient
+              </ion-button>
+            </div>
+
+            <input type="hidden" formControlName="patient_id">
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Certificate Details -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="calendar-outline" slot="start"></ion-icon>
+            Certificate Details
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="stacked">Issue Date *</ion-label>
+                  <ion-input 
+                    type="date" 
+                    formControlName="issue_date"
+                    [min]="minDate"
+                    [max]="maxDate"
+                    (ionChange)="onDateChange()">
+                  </ion-input>
+                  <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="stacked">Valid Until *</ion-label>
+                  <ion-input 
+                    type="date" 
+                    formControlName="valid_until"
+                    [min]="minDate"
+                    [max]="maxDate"
+                    (ionChange)="onDateChange()">
+                  </ion-input>
+                  <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <!-- Activity Purpose (for fitness certificate) -->
+            <ion-row *ngIf="certificateForm.get('certificate_type')?.value === 'fitness'">
+              <ion-col size="12">
+                <ion-item lines="full" class="form-item">
+                  <ion-label>Purpose of Certificate</ion-label>
+                  <ion-select 
+                    formControlName="activity_purpose"
+                    interface="action-sheet"
+                    (ionChange)="updateCertificateContent()">
+                    <ion-select-option value="">Select Purpose</ion-select-option>
+                    <ion-select-option *ngFor="let purpose of activityPurposes" [value]="purpose">
+                      {{purpose}}
+                    </ion-select-option>
+                  </ion-select>
+                  <ion-icon name="flag-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Medical Information (for medical certificate) -->
+      <ion-card class="section-card" *ngIf="certificateForm.get('certificate_type')?.value === 'medical'">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="medkit-outline" slot="start"></ion-icon>
+            Medical Information
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item lines="full" class="form-item">
+            <ion-label position="stacked">Diagnosis / Reason</ion-label>
+            <ion-textarea 
+              formControlName="diagnosis"
+              placeholder="Enter diagnosis or reason for certificate"
+              rows="2"
+              auto-grow
+              (ionChange)="updateCertificateContent()">
+            </ion-textarea>
+            <ion-icon name="medical-outline" slot="start"></ion-icon>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Certificate Content -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="create-outline" slot="start"></ion-icon>
+            Certificate Content
+          </ion-card-title>
+          <ion-card-subtitle>Customize the certificate text</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <!-- Quick Templates -->
+          <div class="template-buttons" *ngIf="selectedPatient">
+            <h4>Quick Templates:</h4>
+            <div class="template-grid">
+              <ion-button 
+                *ngIf="certificateForm.get('certificate_type')?.value === 'medical'"
+                fill="outline" 
+                size="small" 
+                color="medium"
+                (click)="applyTemplate('short_medical')">
+                Short Medical Certificate
+              </ion-button>
+              
+              <ion-button 
+                *ngIf="certificateForm.get('certificate_type')?.value === 'medical'"
+                fill="outline" 
+                size="small" 
+                color="medium"
+                (click)="applyTemplate('sick_leave')">
+                Sick Leave Certificate
+              </ion-button>
+              
+              <ion-button 
+                *ngIf="certificateForm.get('certificate_type')?.value === 'fitness'"
+                fill="outline" 
+                size="small" 
+                color="medium"
+                (click)="applyTemplate('fitness_clearance')">
+                Fitness Clearance
+              </ion-button>
+            </div>
+          </div>
+
+          <!-- Certificate Content Editor -->
+          <ion-item lines="full" class="form-item">
+            <ion-label position="stacked">Certificate Content *</ion-label>
+            <ion-textarea 
+              formControlName="content"
+              placeholder="Enter certificate content..."
+              rows="6"
+              auto-grow>
+            </ion-textarea>
+            <ion-icon name="document-text-outline" slot="start"></ion-icon>
+          </ion-item>
+
+          <!-- Placeholder Guide -->
+          <div class="placeholder-guide">
+            <p><strong>Available Placeholders:</strong></p>
+            <ul>
+              <li><code>[PATIENT_NAME]</code> - Patient's full name</li>
+              <li *ngIf="certificateForm.get('certificate_type')?.value === 'medical'"><code>[DIAGNOSIS]</code> - Diagnosis/Reason</li>
+              <li><code>[START_DATE]</code> - Issue date (formatted)</li>
+              <li><code>[END_DATE]</code> - Valid until date (formatted)</li>
+            </ul>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Recommendations & Restrictions -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+            Recommendations & Restrictions
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="stacked">Recommendations</ion-label>
+                  <ion-textarea 
+                    formControlName="recommendations"
+                    placeholder="Medical recommendations (optional)"
+                    rows="3"
+                    auto-grow>
+                  </ion-textarea>
+                  <ion-icon name="thumbs-up-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="stacked">Restrictions</ion-label>
+                  <ion-textarea 
+                    formControlName="restrictions"
+                    placeholder="Activity restrictions (optional)"
+                    rows="3"
+                    auto-grow>
+                  </ion-textarea>
+                  <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Certificate Preview -->
+      <ion-card class="section-card preview-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="eye-outline" slot="start"></ion-icon>
+            Certificate Preview
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="preview-content">
+            <div class="preview-header">
+              <h3>{{getCertificateTypeLabel(certificateForm.get('certificate_type')?.value)}}</h3>
+              <p *ngIf="selectedPatient">For: {{selectedPatient.full_name}}</p>
+            </div>
+            
+            <div class="preview-body">
+              <p class="preview-text">{{certificateForm.get('content')?.value || 'Certificate content will appear here...'}}</p>
+              
+              <div class="preview-details" *ngIf="certificateForm.get('diagnosis')?.value">
+                <p><strong>Diagnosis:</strong> {{certificateForm.get('diagnosis')?.value}}</p>
+              </div>
+              
+              <div class="preview-details" *ngIf="certificateForm.get('recommendations')?.value">
+                <p><strong>Recommendations:</strong> {{certificateForm.get('recommendations')?.value}}</p>
+              </div>
+              
+              <div class="preview-details" *ngIf="certificateForm.get('restrictions')?.value">
+                <p><strong>Restrictions:</strong> {{certificateForm.get('restrictions')?.value}}</p>
+              </div>
+              
+              <div class="preview-footer">
+                <p><strong>Issue Date:</strong> {{certificateForm.get('issue_date')?.value | date:'longDate'}}</p>
+                <p><strong>Valid Until:</strong> {{certificateForm.get('valid_until')?.value | date:'longDate'}}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="preview-actions">
+            <ion-button expand="block" fill="outline" color="primary" (click)="previewCertificate()">
+              <ion-icon name="expand-outline" slot="start"></ion-icon>
+              Full Preview
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <ion-button 
+          expand="block" 
+          type="submit" 
+          color="primary"
+          size="large"
+          [disabled]="certificateForm.invalid || !selectedPatient">
+          <ion-icon name="document-text-outline" slot="start"></ion-icon>
+          Generate Certificate
+        </ion-button>
+        
+        <ion-button 
+          expand="block" 
+          fill="clear" 
+          color="medium"
+          (click)="resetForm()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Clear Form
+        </ion-button>
+      </div>
+    </div>
+  </form>
+</ion-content>

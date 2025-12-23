@@ -1,0 +1,315 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Prescriptions</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleViewMode()">
+        <ion-icon [name]="viewMode === 'list' ? 'grid-outline' : 'list-outline'"></ion-icon>
+      </ion-button>
+      <ion-button (click)="exportToCSV()">
+        <ion-icon name="download-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Statistics Cards -->
+  <div class="stats-cards">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="primary">
+            <ion-card-content>
+              <h2>{{prescriptions.length}}</h2>
+              <p>Total</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="success">
+            <ion-card-content>
+              <h2>{{getUpcomingCount()}}</h2>
+              <p>Upcoming</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="warning">
+            <ion-card-content>
+              <h2>{{getTodayCount()}}</h2>
+              <p>Today</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="danger">
+            <ion-card-content>
+              <h2>{{getOverdueCount()}}</h2>
+              <p>Overdue</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Search and Filter Bar -->
+  <div class="search-filter-bar">
+    <ion-searchbar 
+      placeholder="Search prescriptions..."
+      [value]="searchTerm"
+      (ionInput)="searchPrescriptions($event)"
+      animated
+      clear-icon="close-circle"
+      class="prescription-searchbar">
+    </ion-searchbar>
+
+    <div class="filter-controls">
+      <ion-button fill="outline" color="medium" (click)="openFilters()">
+        <ion-icon name="filter-outline" slot="start"></ion-icon>
+        Filters
+        <ion-badge color="primary" *ngIf="getFilterCount() > 0">
+          {{getFilterCount()}}
+        </ion-badge>
+      </ion-button>
+
+      <ion-select 
+        [(ngModel)]="sortBy" 
+        (ionChange)="applyFilters()"
+        interface="action-sheet"
+        placeholder="Sort by"
+        class="sort-select">
+        <ion-select-option *ngFor="let option of sortOptions" [value]="option.value">
+          {{option.label}}
+        </ion-select-option>
+      </ion-select>
+
+      <ion-button fill="clear" color="medium" (click)="clearFilters()" *ngIf="getFilterCount() > 0 || searchTerm">
+        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+        Clear All
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Quick Date Filters -->
+  <div class="quick-filters">
+    <ion-segment [(ngModel)]="activeFilters.dateRange" (ionChange)="applyFilters()">
+      <ion-segment-button *ngFor="let range of dateRanges" [value]="range.value">
+        {{range.label}}
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-section">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading prescriptions...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredPrescriptions.length === 0" class="empty-state">
+    <ion-icon name="document-text-outline"></ion-icon>
+    <h3>No Prescriptions Found</h3>
+    <p *ngIf="searchTerm || getFilterCount() > 0">
+      Try adjusting your search or filters
+    </p>
+    <p *ngIf="!searchTerm && getFilterCount() === 0">
+      No prescriptions created yet
+    </p>
+    <ion-button color="primary" routerLink="/create-prescription">
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Create First Prescription
+    </ion-button>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="!isLoading && viewMode === 'list' && filteredPrescriptions.length > 0">
+    <ion-list class="prescriptions-list">
+      <ion-item-sliding *ngFor="let prescription of filteredPrescriptions">
+        <ion-item 
+          class="prescription-item" 
+          [class.overdue]="getPrescriptionStatus(prescription) === 'overdue'"
+          (click)="viewPrescription(prescription)">
+          
+          <ion-avatar slot="start">
+            <div class="prescription-avatar" [class]="getPrescriptionStatus(prescription)">
+              {{prescription.prescription_id.substring(2)}}
+            </div>
+          </ion-avatar>
+          
+          <ion-label>
+            <h2>
+              {{prescription.patient_name}}
+              <span class="patient-age">({{prescription.patient_age}} yrs)</span>
+              <ion-badge [color]="getStatusColor(getPrescriptionStatus(prescription))" class="status-badge">
+                {{getPrescriptionStatus(prescription)}}
+              </ion-badge>
+            </h2>
+            
+            <p class="prescription-id">
+              <ion-icon name="id-card-outline"></ion-icon>
+              {{prescription.prescription_id}}
+            </p>
+            
+            <p class="complaint">
+              <ion-icon name="medical-outline"></ion-icon>
+              {{prescription.chief_complaint}}
+            </p>
+            
+            <p class="diagnosis" *ngIf="prescription.diagnosis">
+              <ion-icon name="document-text-outline"></ion-icon>
+              {{prescription.diagnosis}}
+            </p>
+            
+            <div class="prescription-meta">
+              <span class="date">
+                <ion-icon name="calendar-outline"></ion-icon>
+                {{prescription.created_at | date:'mediumDate'}}
+              </span>
+              
+              <span class="medicines-count">
+                <ion-icon name="medical-outline"></ion-icon>
+                {{prescription.medicines_count}} medicines
+              </span>
+              
+              <span class="follow-up" *ngIf="prescription.follow_up_date">
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+                Follow-up: {{prescription.follow_up_date | date:'shortDate'}}
+              </span>
+            </div>
+          </ion-label>
+          
+          <ion-note slot="end" class="consultation-fee">
+            ₹{{prescription.consultation_fee}}
+          </ion-note>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="primary" (click)="downloadPrescription(prescription)">
+            <ion-icon slot="top" name="download-outline"></ion-icon>
+            Download
+          </ion-item-option>
+          <ion-item-option color="success" (click)="sharePrescription(prescription)">
+            <ion-icon slot="top" name="share-outline"></ion-icon>
+            Share
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="deletePrescription(prescription)">
+            <ion-icon slot="top" name="trash-outline"></ion-icon>
+            Delete
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+
+  <!-- Grid View -->
+  <div *ngIf="!isLoading && viewMode === 'grid' && filteredPrescriptions.length > 0" class="prescriptions-grid">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let prescription of filteredPrescriptions">
+          <ion-card 
+            class="prescription-card" 
+            [class.overdue]="getPrescriptionStatus(prescription) === 'overdue'">
+            
+            <div class="card-header" [class]="getPrescriptionStatus(prescription)">
+              <div class="header-content">
+                <h3>{{prescription.patient_name}}</h3>
+                <p class="patient-details">
+                  {{prescription.patient_age}} yrs • {{prescription.prescription_id}}
+                </p>
+              </div>
+              <ion-badge [color]="getStatusColor(getPrescriptionStatus(prescription))" class="status-badge">
+                {{getPrescriptionStatus(prescription)}}
+              </ion-badge>
+            </div>
+
+            <ion-card-content>
+              <div class="prescription-content">
+                <div class="complaint-section">
+                  <h4>
+                    <ion-icon name="medical-outline"></ion-icon>
+                    Complaint
+                  </h4>
+                  <p>{{prescription.chief_complaint}}</p>
+                </div>
+                
+                <div class="diagnosis-section" *ngIf="prescription.diagnosis">
+                  <h4>
+                    <ion-icon name="document-text-outline"></ion-icon>
+                    Diagnosis
+                  </h4>
+                  <p>{{prescription.diagnosis}}</p>
+                </div>
+                
+                <div class="details-section">
+                  <div class="detail-item">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>{{prescription.created_at | date:'shortDate'}}</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <ion-icon name="medical-outline"></ion-icon>
+                    <span>{{prescription.medicines_count}} meds</span>
+                  </div>
+                  
+                  <div class="detail-item" *ngIf="prescription.follow_up_date">
+                    <ion-icon name="arrow-forward-outline"></ion-icon>
+                    <span>{{prescription.follow_up_date | date:'shortDate'}}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <div class="consultation-fee">
+                  <strong>₹{{prescription.consultation_fee}}</strong>
+                </div>
+                
+                <div class="card-actions">
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    color="primary"
+                    (click)="downloadPrescription(prescription)">
+                    <ion-icon name="download-outline"></ion-icon>
+                  </ion-button>
+                  
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    color="success"
+                    (click)="sharePrescription(prescription)">
+                    <ion-icon name="share-outline"></ion-icon>
+                  </ion-button>
+                  
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    color="danger"
+                    (click)="deletePrescription(prescription)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Load More (Pagination) -->
+  <div *ngIf="!isLoading && filteredPrescriptions.length > 0" class="load-more">
+    <ion-button expand="block" fill="clear" color="medium">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Load More Prescriptions
+    </ion-button>
+  </div>
+
+  <!-- Refresh Content -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+</ion-content>

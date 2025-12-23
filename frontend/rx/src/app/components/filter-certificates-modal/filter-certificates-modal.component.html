@@ -1,0 +1,110 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Filter Certificates</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="applyFilters()">
+    <!-- Certificate Type Filter -->
+    <ion-card class="filter-section">
+      <ion-card-header>
+        <ion-card-title>Certificate Type</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-radio-group [(ngModel)]="filters.certificateType" name="certificateType">
+            <ion-item lines="none">
+              <ion-radio slot="start" value="all"></ion-radio>
+              <ion-label>All Types</ion-label>
+            </ion-item>
+            <ion-item *ngFor="let type of certificateTypes" lines="none">
+              <ion-radio slot="start" [value]="type.value"></ion-radio>
+              <ion-label>{{type.label}}</ion-label>
+            </ion-item>
+          </ion-radio-group>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Date Range Filter -->
+    <ion-card class="filter-section">
+      <ion-card-header>
+        <ion-card-title>Date Range</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-radio-group [(ngModel)]="filters.dateRange" name="dateRange">
+            <ion-item *ngFor="let option of dateRangeOptions" lines="none">
+              <ion-radio slot="start" [value]="option.value"></ion-radio>
+              <ion-label>{{option.label}}</ion-label>
+            </ion-item>
+          </ion-radio-group>
+          
+          <!-- Custom Date Range (if selected) -->
+          <div *ngIf="filters.dateRange === 'custom'" class="custom-date-range">
+            <ion-item>
+              <ion-label position="stacked">From Date</ion-label>
+              <ion-input type="date"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="stacked">To Date</ion-label>
+              <ion-input type="date"></ion-input>
+            </ion-item>
+          </div>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Status Filter -->
+    <ion-card class="filter-section">
+      <ion-card-header>
+        <ion-card-title>Status</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-radio-group [(ngModel)]="filters.status" name="status">
+            <ion-item *ngFor="let option of statusOptions" lines="none">
+              <ion-radio slot="start" [value]="option.value"></ion-radio>
+              <ion-label>{{option.label}}</ion-label>
+            </ion-item>
+          </ion-radio-group>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Patient Name Filter -->
+    <ion-card class="filter-section">
+      <ion-card-header>
+        <ion-card-title>Patient Name</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-input 
+            type="text" 
+            [(ngModel)]="filters.patientName" 
+            name="patientName"
+            placeholder="Enter patient name">
+          </ion-input>
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Action Buttons -->
+    <div class="modal-actions">
+      <ion-button expand="block" type="submit" color="primary">
+        Apply Filters
+      </ion-button>
+      
+      <ion-button expand="block" fill="clear" color="medium" (click)="resetFilters()">
+        Reset All Filters
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Add History Entry</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="onSave()">
+    <ion-item>
+      <ion-label position="stacked">Title</ion-label>
+      <ion-input [(ngModel)]="entry.title" name="title" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Description</ion-label>
+      <ion-textarea [(ngModel)]="entry.description" name="description"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Date</ion-label>
+      <ion-datetime [(ngModel)]="entry.date" name="date" displayFormat="MMM DD, YYYY"></ion-datetime>
+    </ion-item>
+    <ion-footer>
+      <ion-button expand="block" type="submit" color="primary">Save</ion-button>
+    </ion-footer>
+  </form>
+</ion-content>

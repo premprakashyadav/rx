@@ -1,0 +1,194 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancelImport()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Import Medicines</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="modal-content">
+  <!-- File Selection Section -->
+  <ion-card class="file-card" *ngIf="!showPreview">
+    <ion-card-header>
+      <ion-card-title>Select File</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p class="info-text">
+        Choose a CSV or JSON file containing medicine data to import.
+      </p>
+
+      <!-- File Input -->
+      <div class="file-input-wrapper">
+        <input
+          type="file"
+          #fileInput
+          (change)="onFileSelected($event)"
+          accept=".csv,.json"
+          hidden
+        />
+        <ion-button
+          expand="block"
+          (click)="fileInput.click()"
+          class="browse-button"
+        >
+          <ion-icon name="folder" slot="start"></ion-icon>
+          Browse Files
+        </ion-button>
+      </div>
+
+      <!-- Selected File Display -->
+      <div class="selected-file" *ngIf="selectedFile">
+        <ion-icon name="document"></ion-icon>
+        <div class="file-info">
+          <strong>{{ selectedFile.name }}</strong>
+          <p>{{ (selectedFile.size / 1024).toFixed(2) }} KB</p>
+        </div>
+        <ion-button fill="clear" (click)="clearSelection()">
+          <ion-icon name="close" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+
+      <!-- Template Download -->
+      <ion-button
+        expand="block"
+        fill="outline"
+        (click)="downloadTemplate()"
+        class="template-button"
+      >
+        <ion-icon name="download" slot="start"></ion-icon>
+        Download Template
+      </ion-button>
+
+      <!-- Format Information -->
+      <div class="format-info">
+        <ion-icon name="information-circle"></ion-icon>
+        <div>
+          <strong>Supported Formats:</strong>
+          <p>CSV: Required columns are name, manufacturer, strength, form, description</p>
+          <p>JSON: Array of medicine objects with required fields</p>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Preview Section -->
+  <ng-container *ngIf="showPreview">
+    <!-- Import Progress -->
+    <ion-card class="progress-card" *ngIf="isProcessing">
+      <ion-card-content>
+        <h3>Importing...</h3>
+        <ion-progress-bar
+          [value]="importProgress / 100"
+          color="success"
+        ></ion-progress-bar>
+        <p class="progress-text">{{ importProgress }}% complete</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Valid Records -->
+    <ion-card class="preview-card" *ngIf="validMedicines.length > 0">
+      <ion-card-header>
+        <ion-card-title>
+          Valid Records ({{ validMedicines.length }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list class="medicines-preview">
+          <ion-item *ngFor="let medicine of validMedicines.slice(0, 5)">
+            <ion-label>
+              <h3>{{ medicine.name }}</h3>
+              <p>{{ medicine.strength }} • {{ medicine.manufacturer }}</p>
+            </ion-label>
+            <ion-badge color="success" slot="end">
+              <ion-icon name="checkmark-circle"></ion-icon>
+            </ion-badge>
+          </ion-item>
+          <ion-item *ngIf="validMedicines.length > 5">
+            <ion-label>
+              <p class="more-text">
+                +{{ validMedicines.length - 5 }} more medicine(s)
+              </p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Invalid Records -->
+    <ion-card class="preview-card error-card" *ngIf="invalidRecords.length > 0">
+      <ion-card-header>
+        <ion-card-title color="danger">
+          Invalid Records ({{ invalidRecords.length }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list class="errors-preview">
+          <ion-item *ngFor="let record of invalidRecords.slice(0, 3)">
+            <ion-label>
+              <h3>Row {{ record.row }}</h3>
+              <p *ngFor="let error of record.errors" class="error-item">
+                {{ error }}
+              </p>
+            </ion-label>
+            <ion-badge color="danger" slot="end">!</ion-badge>
+          </ion-item>
+          <ion-item *ngIf="invalidRecords.length > 3">
+            <ion-label>
+              <p class="more-text">
+                +{{ invalidRecords.length - 3 }} more error(s)
+              </p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Summary -->
+    <ion-card class="summary-card">
+      <ion-card-content>
+        <div class="summary-stats">
+          <div class="stat-item success">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <div>
+              <p>Valid</p>
+              <strong>{{ validMedicines.length }}</strong>
+            </div>
+          </div>
+          <div class="stat-item danger" *ngIf="invalidRecords.length > 0">
+            <ion-icon name="close-circle"></ion-icon>
+            <div>
+              <p>Invalid</p>
+              <strong>{{ invalidRecords.length }}</strong>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons>
+      <ion-button expand="block" fill="clear" (click)="cancelImport()">
+        Cancel
+      </ion-button>
+      <ion-button
+        expand="block"
+        [disabled]="validMedicines.length === 0 || isProcessing"
+        (click)="importMedicines()"
+        class="import-button"
+      >
+        <ion-spinner
+          *ngIf="isProcessing"
+          name="crescent"
+          class="spinner"
+        ></ion-spinner>
+        {{ isProcessing ? 'Importing...' : 'Import' }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

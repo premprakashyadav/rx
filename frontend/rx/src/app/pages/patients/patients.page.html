@@ -1,0 +1,298 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Patients</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleViewMode()">
+        <ion-icon [name]="viewMode === 'list' ? 'grid-outline' : 'list-outline'"></ion-icon>
+      </ion-button>
+      <ion-button (click)="exportPatients()">
+        <ion-icon name="download-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Search and Filter Bar -->
+  <div class="search-filter-bar">
+    <ion-searchbar 
+      placeholder="Search patients by name, mobile, or ID"
+      [value]="searchTerm"
+      (ionInput)="searchPatients($event)"
+      animated
+      clear-icon="close-circle"
+      class="patient-searchbar">
+    </ion-searchbar>
+
+    <div class="filter-buttons">
+      <ion-button fill="clear" size="small" (click)="clearFilters()">
+        <ion-icon name="filter-outline"></ion-icon>
+        Clear Filters
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Quick Filters -->
+  <ion-card class="filters-card">
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="4">
+            <ion-item>
+              <ion-label>Age Group</ion-label>
+              <ion-select 
+                [(ngModel)]="filters.ageRange" 
+                (ionChange)="applyFilters()"
+                interface="action-sheet">
+                <ion-select-option value="all">All Ages</ion-select-option>
+                <ion-select-option value="child">Child (0-12)</ion-select-option>
+                <ion-select-option value="teen">Teen (13-19)</ion-select-option>
+                <ion-select-option value="adult">Adult (20-60)</ion-select-option>
+                <ion-select-option value="senior">Senior (60+)</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+
+          <ion-col size="12" size-md="4">
+            <ion-item>
+              <ion-label>Sex</ion-label>
+              <ion-select 
+                [(ngModel)]="filters.sex" 
+                (ionChange)="applyFilters()"
+                interface="action-sheet">
+                <ion-select-option value="all">All</ion-select-option>
+                <ion-select-option value="male">Male</ion-select-option>
+                <ion-select-option value="female">Female</ion-select-option>
+                <ion-select-option value="other">Other</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+
+          <ion-col size="12" size-md="4">
+            <ion-item>
+              <ion-label>Mobile Number</ion-label>
+              <ion-select 
+                [(ngModel)]="filters.hasMobile" 
+                (ionChange)="applyFilters()"
+                interface="action-sheet">
+                <ion-select-option value="all">All</ion-select-option>
+                <ion-select-option value="hasMobile">Has Mobile</ion-select-option>
+                <ion-select-option value="noMobile">No Mobile</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Statistics Card -->
+  <ion-card class="stats-card">
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <h3>{{patients.length}}</h3>
+              <p>Total Patients</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <h3>{{getMaleCount()}}</h3>
+              <p>Male</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <h3>{{getFemaleCount()}}</h3>
+              <p>Female</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <h3>{{getActivePatientCount()}}</h3>
+              <p>Active Patients</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Add Patient Button -->
+  <div class="add-patient-section">
+    <ion-button 
+      expand="block" 
+      color="primary" 
+      (click)="addPatient()"
+      class="add-patient-button">
+      <ion-icon name="person-add-outline" slot="start"></ion-icon>
+      Add New Patient
+    </ion-button>
+  </div>
+
+  <!-- Patients List/Grid -->
+  <div *ngIf="isLoading" class="loading-section">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading patients...</p>
+  </div>
+
+  <div *ngIf="!isLoading && filteredPatients.length === 0" class="empty-state">
+    <ion-icon name="people-outline"></ion-icon>
+    <h3>No Patients Found</h3>
+    <p *ngIf="searchTerm || filters.ageRange !== 'all' || filters.sex !== 'all' || filters.hasMobile !== 'all'">
+      Try adjusting your search or filters
+    </p>
+    <p *ngIf="!searchTerm && filters.ageRange === 'all' && filters.sex === 'all' && filters.hasMobile === 'all'">
+      Start by adding your first patient
+    </p>
+    <ion-button color="primary" (click)="addPatient()">
+      Add First Patient
+    </ion-button>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="!isLoading && viewMode === 'list' && filteredPatients.length > 0">
+    <ion-list class="patients-list">
+      <ion-item-sliding *ngFor="let patient of filteredPatients">
+        <ion-item class="patient-item" (click)="viewPatient(patient)">
+          <ion-avatar slot="start">
+            <div class="patient-avatar" [style.background-color]="getAvatarColor(patient)">
+              {{getPatientInitials(patient.full_name)}}
+            </div>
+          </ion-avatar>
+          <ion-label>
+            <h2>{{patient.full_name}}</h2>
+            <p>
+              <ion-icon name="person-outline"></ion-icon>
+              {{patient.age || 'N/A'}} yrs • {{patient.sex || 'N/A'}} • {{getAgeGroup(patient.age || 0)}}
+            </p>
+            <p *ngIf="patient.mobile">
+              <ion-icon name="call-outline"></ion-icon>
+              {{patient.mobile}}
+            </p>
+            <p *ngIf="patient.patient_id">
+              <ion-icon name="id-card-outline"></ion-icon>
+              ID: {{patient.patient_id}}
+            </p>
+            <p *ngIf="patient.last_visit">
+              <ion-icon name="calendar-outline"></ion-icon>
+              Last visit: {{patient.last_visit | date:'mediumDate'}}
+            </p>
+          </ion-label>
+          <ion-badge slot="end" color="primary" *ngIf="patient.prescription_count">
+            {{patient.prescription_count}} visits
+          </ion-badge>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="primary" (click)="createPrescriptionForPatient(patient)">
+            <ion-icon slot="top" name="document-text-outline"></ion-icon>
+            Prescription
+          </ion-item-option>
+          <ion-item-option color="warning" (click)="editPatient(patient)">
+            <ion-icon slot="top" name="create-outline"></ion-icon>
+            Edit
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="deletePatient(patient)">
+            <ion-icon slot="top" name="trash-outline"></ion-icon>
+            Delete
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+
+  <!-- Grid View -->
+  <div *ngIf="!isLoading && viewMode === 'grid' && filteredPatients.length > 0" class="patients-grid">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let patient of filteredPatients">
+          <ion-card class="patient-card">
+            <div class="patient-card-header">
+              <div class="patient-avatar-large" [style.background-color]="getAvatarColor(patient)">
+                {{getPatientInitials(patient.full_name)}}
+              </div>
+              <div class="patient-card-title">
+                <h3>{{patient.full_name}}</h3>
+                <p class="patient-id">{{patient.patient_id}}</p>
+              </div>
+            </div>
+
+            <ion-card-content>
+              <div class="patient-info">
+                <p>
+                  <ion-icon name="person-outline"></ion-icon>
+                  {{patient.age || 'N/A'}} yrs • {{patient.sex || 'N/A'}}
+                </p>
+                <p *ngIf="patient.mobile">
+                  <ion-icon name="call-outline"></ion-icon>
+                  {{patient.mobile}}
+                </p>
+                <p *ngIf="patient.email">
+                  <ion-icon name="mail-outline"></ion-icon>
+                  {{patient.email}}
+                </p>
+                <p *ngIf="patient.last_visit">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  Last visit: {{patient.last_visit | date:'shortDate'}}
+                </p>
+              </div>
+
+              <div class="patient-stats">
+                <ion-badge color="primary">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                  {{patient.prescription_count || 0}} visits
+                </ion-badge>
+              </div>
+
+              <div class="patient-actions">
+                <ion-button 
+                  expand="block" 
+                  size="small" 
+                  color="primary"
+                  (click)="createPrescriptionForPatient(patient)">
+                  <ion-icon name="add-outline" slot="start"></ion-icon>
+                  New Prescription
+                </ion-button>
+                
+                <div class="action-buttons">
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    color="medium"
+                    (click)="viewPatient(patient)">
+                    <ion-icon name="eye-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    color="warning"
+                    (click)="editPatient(patient)">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    color="danger"
+                    (click)="deletePatient(patient)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Refresh Content -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+</ion-content>

@@ -1,0 +1,18 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/xdqbiqew/public_html/surgician/rx"
+PassengerBaseURI "/rx"
+PassengerNodejs "/home/xdqbiqew/nodevenv/public_html/surgician/rx/20/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION BEGIN
+<IfModule Litespeed>
+SetEnv DB_HOST localhost
+SetEnv DB_NAME rx
+SetEnv DB_USER ratnakar
+SetEnv JWT_SECRET 09c880cee9518bc45fec64aa2868b41df5414664ccb15dc34bece3afe64c0d6825acbd41d886bac32f497714a253c5e803c02e326fe78e190e830a5bbb4b32fb
+SetEnv NODE_ENV production
+SetEnv PORT 3000
+SetEnv DB_PASSWORD ratnakar26012022
+</IfModule>
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION END

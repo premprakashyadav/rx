@@ -1,0 +1,273 @@
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.view-mode {
+  .profile-header {
+    margin-bottom: 24px;
+    
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      
+      ion-avatar {
+        width: 80px;
+        height: 80px;
+        
+        ion-icon {
+          font-size: 80px;
+          color: var(--ion-color-medium);
+        }
+      }
+      
+      .avatar-info {
+        h1 {
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--ion-color-dark);
+          margin: 0 0 8px 0;
+        }
+        
+        p {
+          color: var(--ion-color-medium);
+          margin: 4px 0;
+          font-size: 14px;
+          
+          &.reg-number {
+            color: var(--ion-color-primary);
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+  
+  .info-card, .signatures-card {
+    border-radius: 12px;
+    margin-bottom: 16px;
+    
+    ion-card-header {
+      background: var(--ion-color-light);
+      border-radius: 12px 12px 0 0;
+      padding: 16px;
+      
+      ion-card-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+    }
+    
+    ion-item {
+      --padding-start: 0;
+      --inner-padding-end: 0;
+      margin-bottom: 12px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      ion-icon {
+        color: var(--ion-color-primary);
+        font-size: 20px;
+        margin-right: 12px;
+        min-width: 24px;
+      }
+      
+      h3 {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ion-color-medium);
+        margin: 0 0 4px 0;
+      }
+      
+      p {
+        font-size: 16px;
+        color: var(--ion-color-dark);
+        margin: 0;
+      }
+    }
+  }
+  
+  .signature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    
+    .signature-item {
+      h4 {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin: 0 0 8px 0;
+      }
+      
+      .signature-image {
+        width: 100%;
+        max-height: 150px;
+        object-fit: contain;
+        border: 1px solid var(--ion-color-light);
+        border-radius: 8px;
+        padding: 10px;
+        background: white;
+      }
+    }
+  }
+  
+  .no-signatures {
+    text-align: center;
+    padding: 40px 20px;
+    
+    ion-icon {
+      font-size: 64px;
+      color: var(--ion-color-medium);
+      margin-bottom: 16px;
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+      margin: 4px 0;
+      
+      &.small {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+.edit-card {
+  border-radius: 12px;
+  margin-bottom: 16px;
+  
+  ion-card-header {
+    background: var(--ion-color-light);
+    border-radius: 12px 12px 0 0;
+    padding: 16px;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+    
+    ion-card-subtitle {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      margin-top: 4px;
+    }
+  }
+  
+  .form-item {
+    margin-bottom: 16px;
+    --background: #f8f9fa;
+    border-radius: 10px;
+    
+    ion-icon[slot="start"] {
+      margin-right: 16px;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .signature-upload-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    
+    .upload-item {
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin: 0 0 8px 0;
+      }
+      
+      p {
+        font-size: 14px;
+        color: var(--ion-color-medium);
+        margin: 0 0 16px 0;
+      }
+      
+      .upload-area {
+        .upload-placeholder {
+          border: 2px dashed var(--ion-color-medium);
+          border-radius: 10px;
+          padding: 30px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            border-color: var(--ion-color-primary);
+            background: rgba(var(--ion-color-primary-rgb), 0.05);
+          }
+          
+          ion-icon {
+            font-size: 48px;
+            color: var(--ion-color-medium);
+            margin-bottom: 12px;
+          }
+          
+          p {
+            color: var(--ion-color-medium);
+            margin: 0;
+            font-size: 14px;
+          }
+        }
+      }
+      
+      .preview-area {
+        .preview-image {
+          width: 100%;
+          max-height: 150px;
+          object-fit: contain;
+          border: 1px solid var(--ion-color-light);
+          border-radius: 8px;
+          padding: 10px;
+          background: white;
+          margin-bottom: 10px;
+        }
+        
+        .preview-actions {
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
+.action-buttons {
+  margin-top: 24px;
+  
+  ion-button {
+    margin-bottom: 12px;
+    height: 50px;
+    font-weight: 600;
+    
+    &:disabled {
+      opacity: 0.7;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 8px;
+  }
+  
+  .view-mode {
+    .profile-header {
+      .avatar-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+      }
+    }
+  }
+  
+  .signature-upload-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

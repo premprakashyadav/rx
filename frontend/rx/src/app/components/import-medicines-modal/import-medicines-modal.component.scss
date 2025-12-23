@@ -1,0 +1,386 @@
+.modal-content {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+}
+
+.file-card,
+.preview-card,
+.progress-card,
+.summary-card {
+  margin: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  ion-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 1rem;
+
+    ion-card-title {
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+
+  ion-card-content {
+    padding: 1.5rem;
+  }
+}
+
+.file-card {
+  ion-card-content {
+    .info-text {
+      text-align: center;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    .file-input-wrapper {
+      margin-bottom: 1.5rem;
+
+      .browse-button {
+        --background: #667eea;
+        color: white;
+        margin-bottom: 1rem;
+      }
+    }
+
+    .selected-file {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: #f0f0f0;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+
+      ion-icon {
+        font-size: 2rem;
+        color: #667eea;
+        flex-shrink: 0;
+      }
+
+      .file-info {
+        flex: 1;
+
+        strong {
+          display: block;
+          color: #333;
+          margin-bottom: 0.25rem;
+        }
+
+        p {
+          font-size: 0.85rem;
+          color: #999;
+          margin: 0;
+        }
+      }
+
+      ion-button {
+        flex-shrink: 0;
+      }
+    }
+
+    .template-button {
+      --border-color: #667eea;
+      --color: #667eea;
+      margin-bottom: 1.5rem;
+    }
+
+    .format-info {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: #e8f0fe;
+      border-left: 3px solid #667eea;
+      border-radius: 6px;
+
+      ion-icon {
+        font-size: 1.5rem;
+        color: #667eea;
+        flex-shrink: 0;
+      }
+
+      div {
+        strong {
+          color: #333;
+          display: block;
+          margin-bottom: 0.5rem;
+        }
+
+        p {
+          font-size: 0.85rem;
+          color: #666;
+          margin: 0.25rem 0;
+        }
+      }
+    }
+  }
+}
+
+.progress-card {
+  ion-card-content {
+    h3 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    ion-progress-bar {
+      margin-bottom: 1rem;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-weight: 600;
+      color: #667eea;
+      margin: 0;
+    }
+  }
+}
+
+.preview-card {
+  ion-card-content {
+    .medicines-preview,
+    .errors-preview {
+      --padding-start: 0;
+      --padding-end: 0;
+
+      ion-item {
+        --padding-start: 0;
+        --padding-end: 1rem;
+        --min-height: auto;
+        margin-bottom: 0.75rem;
+        background: #fafafa;
+        border-radius: 6px;
+        padding: 0.75rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        ion-label {
+          h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+          }
+
+          p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0.25rem 0 0 0;
+
+            &.error-item {
+              color: #dc3545;
+              margin-left: 0;
+            }
+
+            &.more-text {
+              color: #667eea;
+              font-weight: 600;
+            }
+          }
+        }
+
+        ion-badge {
+          font-size: 0.85rem;
+          padding: 0.5rem;
+        }
+      }
+    }
+  }
+
+  &.error-card {
+    ion-card-header {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+  }
+}
+
+.summary-card {
+  ion-card-content {
+    .summary-stats {
+      display: flex;
+      gap: 1rem;
+      margin-top: -0.5rem; // offset card-content padding
+
+      .stat-item {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: #f0f0f0;
+
+        ion-icon {
+          font-size: 2rem;
+          flex-shrink: 0;
+        }
+
+        div {
+          p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0 0 0.25rem 0;
+            text-transform: uppercase;
+          }
+
+          strong {
+            display: block;
+            font-size: 1.5rem;
+          }
+        }
+
+        &.success {
+          background: #d4edda;
+
+          ion-icon {
+            color: #28a745;
+          }
+
+          strong {
+            color: #28a745;
+          }
+        }
+
+        &.danger {
+          background: #f8d7da;
+
+          ion-icon {
+            color: #dc3545;
+          }
+
+          strong {
+            color: #dc3545;
+          }
+        }
+      }
+    }
+  }
+}
+
+ion-footer {
+  flex-shrink: 0;
+
+  ion-toolbar {
+    --background: #f4f4f4;
+    --border-width: 1px 0 0 0;
+    --border-color: #e0e0e0;
+
+    ion-buttons {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.5rem;
+
+      ion-button {
+        flex: 1;
+
+        &.import-button {
+          --background: #667eea;
+          color: white;
+
+          &[disabled] {
+            --background: #ccc;
+            opacity: 0.6;
+          }
+
+          .spinner {
+            margin-right: 0.5rem;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .file-card,
+  .preview-card,
+  .progress-card,
+  .summary-card {
+    margin: 0.75rem;
+
+    ion-card-header {
+      padding: 0.75rem;
+
+      ion-card-title {
+        font-size: 0.95rem;
+      }
+    }
+
+    ion-card-content {
+      padding: 1rem;
+    }
+  }
+
+  .file-card {
+    ion-card-content {
+      .selected-file {
+        gap: 0.75rem;
+        padding: 0.75rem;
+
+        ion-icon {
+          font-size: 1.5rem;
+        }
+      }
+
+      .format-info {
+        gap: 0.75rem;
+        padding: 0.75rem;
+
+        ion-icon {
+          font-size: 1.25rem;
+        }
+
+        div {
+          p {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+  }
+
+  .summary-card {
+    ion-card-content {
+      .summary-stats {
+        flex-direction: column;
+
+        .stat-item {
+          padding: 0.75rem;
+        }
+      }
+    }
+  }
+
+  ion-footer {
+    ion-toolbar {
+      ion-buttons {
+        flex-direction: column;
+
+        ion-button {
+          width: 100%;
+          margin-bottom: 0.5rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,496 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Register</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="register-container">
+    <div class="header-section">
+      <ion-icon name="medical" size="large" color="primary"></ion-icon>
+      <h1>Create Account</h1>
+      <p>Join our healthcare platform</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="register()">
+      <!-- User Type Selection -->
+      <ion-card class="form-section">
+        <ion-card-header>
+          <ion-card-title>Account Type</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item lines="none" class="form-item">
+            <ion-label>I am registering as a:</ion-label>
+          </ion-item>
+          
+          <ion-segment formControlName="user_type" color="primary">
+            <ion-segment-button value="doctor">
+              <ion-label>Doctor</ion-label>
+              <ion-icon name="medkit"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="patient">
+              <ion-label>Patient</ion-label>
+              <ion-icon name="person"></ion-icon>
+            </ion-segment-button>
+          </ion-segment>
+          
+          <ion-note color="medium" class="ion-text-center ion-margin-top" style="display: block;">
+            <span *ngIf="showDoctorFields">Register as a healthcare provider</span>
+            <span *ngIf="!showDoctorFields">Register as a patient to book appointments</span>
+          </ion-note>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Account Credentials -->
+      <ion-card class="form-section">
+        <ion-card-header>
+          <ion-card-title>Account Information</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Email Address</ion-label>
+            <ion-input 
+              type="email" 
+              formControlName="email"
+              placeholder="Enter your email">
+            </ion-input>
+            <ion-icon name="mail-outline" slot="start"></ion-icon>
+            <ion-note slot="error" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors">
+              Please enter a valid email
+            </ion-note>
+          </ion-item>
+
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Password</ion-label>
+            <ion-input 
+              [type]="showPassword ? 'text' : 'password'" 
+              formControlName="password"
+              placeholder="Create password">
+            </ion-input>
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+            <ion-note slot="error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors">
+              Password must be at least 6 characters
+            </ion-note>
+          </ion-item>
+
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Confirm Password</ion-label>
+            <ion-input 
+              [type]="showConfirmPassword ? 'text' : 'password'" 
+              formControlName="confirmPassword"
+              placeholder="Confirm password">
+            </ion-input>
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <ion-button fill="clear" slot="end" (click)="toggleConfirmPasswordVisibility()">
+              <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+            <ion-note slot="error" *ngIf="registerForm.get('confirmPassword')?.touched && (registerForm.errors?.['passwordMismatch'] || registerForm.get('confirmPassword')?.errors)">
+              Passwords do not match
+            </ion-note>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Doctor Information - Conditionally Shown -->
+      <ion-card class="form-section" *ngIf="showDoctorFields">
+        <ion-card-header>
+          <ion-card-title>Professional Information</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Full Name</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="full_name"
+                    placeholder="Dr. First Last">
+                  </ion-input>
+                  <ion-icon name="person-outline" slot="start"></ion-icon>
+                  <ion-note slot="error" *ngIf="registerForm.get('full_name')?.touched && registerForm.get('full_name')?.errors">
+                    Full name is required
+                  </ion-note>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Qualification</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="qualification"
+                    placeholder="MBBS, MD, etc.">
+                  </ion-input>
+                  <ion-icon name="school-outline" slot="start"></ion-icon>
+                  <ion-note slot="error" *ngIf="registerForm.get('qualification')?.touched && registerForm.get('qualification')?.errors">
+                    Qualification is required
+                  </ion-note>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Specialization</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="specialization"
+                    placeholder="Cardiology, General Physician, etc.">
+                  </ion-input>
+                  <ion-icon name="medkit-outline" slot="start"></ion-icon>
+                  <ion-note slot="error" *ngIf="registerForm.get('specialization')?.touched && registerForm.get('specialization')?.errors">
+                    Specialization is required
+                  </ion-note>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Registration Number</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="registration_number"
+                    placeholder="Medical council registration">
+                  </ion-input>
+                  <ion-icon name="document-text-outline" slot="start"></ion-icon>
+                  <ion-note slot="error" *ngIf="registerForm.get('registration_number')?.touched && registerForm.get('registration_number')?.errors">
+                    Registration number is required
+                  </ion-note>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Clinic/Hospital Name</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="clinic_name"
+                    placeholder="Name of your clinic">
+                  </ion-input>
+                  <ion-icon name="business-outline" slot="start"></ion-icon>
+                  <ion-note slot="error" *ngIf="registerForm.get('clinic_name')?.touched && registerForm.get('clinic_name')?.errors">
+                    Clinic name is required
+                  </ion-note>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Clinic Phone</ion-label>
+                  <ion-input 
+                    type="tel" 
+                    formControlName="clinic_phone"
+                    placeholder="Clinic contact number">
+                  </ion-input>
+                  <ion-icon name="call-outline" slot="start"></ion-icon>
+                  <ion-note slot="error" *ngIf="registerForm.get('clinic_phone')?.touched && registerForm.get('clinic_phone')?.errors">
+                    Clinic phone is required
+                  </ion-note>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Clinic Address</ion-label>
+                  <ion-textarea 
+                    formControlName="clinic_address"
+                    placeholder="Complete clinic address"
+                    rows="3">
+                  </ion-textarea>
+                  <ion-icon name="location-outline" slot="start"></ion-icon>
+                  <ion-note slot="error" *ngIf="registerForm.get('clinic_address')?.touched && registerForm.get('clinic_address')?.errors">
+                    Clinic address is required
+                  </ion-note>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Mobile Number</ion-label>
+                  <ion-input 
+                    type="tel" 
+                    formControlName="mobile"
+                    placeholder="Your personal mobile">
+                  </ion-input>
+                  <ion-icon name="phone-portrait-outline" slot="start"></ion-icon>
+                  <ion-note slot="error" *ngIf="registerForm.get('mobile')?.touched && registerForm.get('mobile')?.errors">
+                    Mobile number is required
+                  </ion-note>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="3">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Experience (Years)</ion-label>
+                  <ion-input 
+                    type="number" 
+                    formControlName="experience_years"
+                    placeholder="0">
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="3">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Consultation Fee (₹)</ion-label>
+                  <ion-input 
+                    type="number" 
+                    formControlName="consultation_fee"
+                    placeholder="0">
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+            
+            <!-- File Upload Section -->
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="none" class="form-item">
+                  <ion-label>
+                    <h3>Professional Documents (Optional)</h3>
+                    <p class="ion-text-wrap" style="font-size: 14px; color: var(--ion-color-medium);">
+                      Upload digital signature, stamp, and letterhead for professional documents
+                    </p>
+                  </ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <!-- Digital Signature -->
+              <ion-col size="12" size-md="4">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="stacked">
+                    Digital Signature
+                    <ion-text color="medium" class="ion-text-small">
+                      (Image or PDF)
+                    </ion-text>
+                  </ion-label>
+                  
+                  <div class="file-upload-container">
+                    <!-- Hidden file input -->
+                    <input 
+                      #digitalSignatureInput 
+                      type="file" 
+                      accept="image/*,.pdf"
+                      (change)="onFileSelected($event, 'digital_signature')"
+                      style="display: none;"
+                      data-field="digital_signature">
+                    
+                    <!-- Custom button -->
+                    <ion-button 
+                      expand="block" 
+                      fill="outline" 
+                      color="medium"
+                      size="small"
+                      (click)="digitalSignatureInput.click()"
+                      class="file-upload-button">
+                      <ion-icon slot="start" name="document-attach"></ion-icon>
+                      Choose File
+                    </ion-button>
+                    
+                    <!-- Selected file info -->
+                    <div *ngIf="registerForm.get('digital_signature')?.value" class="file-info">
+                      <ion-chip color="light" size="small">
+                        <ion-icon name="document" color="primary"></ion-icon>
+                        <ion-label class="file-name">{{ getFileName(registerForm.get('digital_signature')?.value) }}</ion-label>
+                        <ion-icon 
+                          name="close-circle" 
+                          color="danger"
+                          (click)="removeFile('digital_signature')">
+                        </ion-icon>
+                      </ion-chip>
+                    </div>
+                  </div>
+                </ion-item>
+              </ion-col>
+
+              <!-- Stamp Image -->
+              <ion-col size="12" size-md="4">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="stacked">
+                    Stamp Image
+                    <ion-text color="medium" class="ion-text-small">
+                      (JPG/PNG)
+                    </ion-text>
+                  </ion-label>
+                  
+                  <div class="file-upload-container">
+                    <input 
+                      #stampImageInput 
+                      type="file" 
+                      accept="image/*"
+                      (change)="onFileSelected($event, 'stamp_image')"
+                      style="display: none;"
+                      data-field="stamp_image">
+                    
+                    <ion-button 
+                      expand="block" 
+                      fill="outline" 
+                      color="medium"
+                      size="small"
+                      (click)="stampImageInput.click()"
+                      class="file-upload-button">
+                      <ion-icon slot="start" name="stamp"></ion-icon>
+                      Choose Stamp
+                    </ion-button>
+                    
+                    <div *ngIf="registerForm.get('stamp_image')?.value" class="file-info">
+                      <ion-chip color="light" size="small">
+                        <ion-icon name="image" color="primary"></ion-icon>
+                        <ion-label class="file-name">{{ getFileName(registerForm.get('stamp_image')?.value) }}</ion-label>
+                        <ion-icon 
+                          name="close-circle" 
+                          color="danger"
+                          (click)="removeFile('stamp_image')">
+                        </ion-icon>
+                      </ion-chip>
+                    </div>
+                  </div>
+                </ion-item>
+              </ion-col>
+
+              <!-- Letterhead Image -->
+              <ion-col size="12" size-md="4">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="stacked">
+                    Letterhead
+                    <ion-text color="medium" class="ion-text-small">
+                      (JPG/PNG)
+                    </ion-text>
+                  </ion-label>
+                  
+                  <div class="file-upload-container">
+                    <input 
+                      #letterheadInput 
+                      type="file" 
+                      accept="image/*"
+                      (change)="onFileSelected($event, 'letterhead_image')"
+                      style="display: none;"
+                      data-field="letterhead_image">
+                    
+                    <ion-button 
+                      expand="block" 
+                      fill="outline" 
+                      color="medium"
+                      size="small"
+                      (click)="letterheadInput.click()"
+                      class="file-upload-button">
+                      <ion-icon slot="start" name="business"></ion-icon>
+                      Choose Letterhead
+                    </ion-button>
+                    
+                    <div *ngIf="registerForm.get('letterhead_image')?.value" class="file-info">
+                      <ion-chip color="light" size="small">
+                        <ion-icon name="newspaper" color="primary"></ion-icon>
+                        <ion-label class="file-name">{{ getFileName(registerForm.get('letterhead_image')?.value) }}</ion-label>
+                        <ion-icon 
+                          name="close-circle" 
+                          color="danger"
+                          (click)="removeFile('letterhead_image')">
+                        </ion-icon>
+                      </ion-chip>
+                    </div>
+                  </div>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <!-- Image Previews Row -->
+            <ion-row *ngIf="hasImagePreviews()">
+              <ion-col size="12">
+                <div class="image-previews-container">
+                  <h6 class="preview-title">Upload Previews</h6>
+                  <ion-grid>
+                    <ion-row>
+                      <!-- Digital Signature Preview -->
+                      <ion-col size="12" size-md="4" *ngIf="uploadedFiles['digital_signature']?.type?.includes('image')">
+                        <div class="preview-card">
+                          <div class="preview-label">Digital Signature</div>
+                          <img 
+  [src]="previewUrls['digital_signature']" 
+  alt="Signature Preview"
+  class="preview-thumb"
+  *ngIf="previewUrls['digital_signature']">
+                          <div class="preview-size">{{ getFileSize(uploadedFiles['digital_signature']) }}</div>
+                        </div>
+                      </ion-col>
+                      
+                      <!-- Stamp Preview -->
+                      <ion-col size="12" size-md="4" *ngIf="uploadedFiles['stamp_image']">
+                        <div class="preview-card">
+                          <div class="preview-label">Stamp Image</div>
+                          <img 
+                            [src]="getFilePreview(uploadedFiles['stamp_image'])" 
+                            alt="Stamp Preview"
+                            class="preview-thumb">
+                          <div class="preview-size">{{ getFileSize(uploadedFiles['stamp_image']) }}</div>
+                        </div>
+                      </ion-col>
+                      
+                      <!-- Letterhead Preview -->
+                      <ion-col size="12" size-md="4" *ngIf="uploadedFiles['letterhead_image']">
+                        <div class="preview-card">
+                          <div class="preview-label">Letterhead</div>
+                          <img 
+                            [src]="getFilePreview(uploadedFiles['letterhead_image'])" 
+                            alt="Letterhead Preview"
+                            class="preview-thumb">
+                          <div class="preview-size">{{ getFileSize(uploadedFiles['letterhead_image']) }}</div>
+                        </div>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Patient Information - Conditionally Shown (Optional) -->
+      <ion-card class="form-section" *ngIf="!showDoctorFields">
+        <ion-card-header>
+          <ion-card-title>Patient Information</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p style="color: var(--ion-color-medium); text-align: center;">
+            Patient registration details can be added here.
+            <br>
+            For now, you can register with just email and password.
+          </p>
+        </ion-card-content>
+      </ion-card>
+
+      <div class="action-buttons">
+        <ion-button 
+          expand="block" 
+          type="submit" 
+          color="primary"
+          [disabled]="registerForm.invalid">
+          Create Account
+        </ion-button>
+
+        <div class="login-link">
+          <p>Already have an account? 
+            <a (click)="goToLogin()">Login here</a>
+          </p>
+        </div>
+      </div>
+    </form>
+  </div>
+</ion-content>

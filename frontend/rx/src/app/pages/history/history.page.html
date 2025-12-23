@@ -1,0 +1,374 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/patients"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Patient History</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleView()">
+        <ion-icon [name]="timelineView ? 'list-outline' : 'time-outline'"></ion-icon>
+      </ion-button>
+      <ion-button (click)="exportHistory()">
+        <ion-icon name="download-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Patient Information Card -->
+  <ion-card *ngIf="patient" class="patient-info-card">
+    <ion-card-content>
+      <div class="patient-header">
+        <ion-avatar class="patient-avatar-large">
+          <div class="avatar-content">
+            {{getInitials(patient.full_name)}}
+          </div>
+        </ion-avatar>
+        <div class="patient-details">
+          <h2>{{patient.full_name}}</h2>
+          <p class="patient-meta">
+            <span>{{patient.age}} years</span>
+            <span>{{patient.sex}}</span>
+            <span>{{patient.blood_group || 'Blood group not specified'}}</span>
+          </p>
+          <p class="patient-contact" *ngIf="patient.mobile">
+            <ion-icon name="call-outline"></ion-icon>
+            {{patient.mobile}}
+          </p>
+          <p class="patient-id">
+            <ion-icon name="id-card-outline"></ion-icon>
+            Patient ID: {{patient.patient_id}}
+          </p>
+        </div>
+      </div>
+      
+      <div class="patient-actions">
+        <ion-button size="small" color="primary" (click)="createPrescription()">
+          <ion-icon name="document-text-outline" slot="start"></ion-icon>
+          New Prescription
+        </ion-button>
+        <ion-button size="small" color="success" (click)="createCertificate()">
+          <ion-icon name="medkit-outline" slot="start"></ion-icon>
+          New Certificate
+        </ion-button>
+        <ion-button size="small" color="warning" (click)="addHistoryEntry()">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Add History
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Statistics Cards -->
+  <div class="stats-cards">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="primary">
+            <ion-card-content>
+              <h2>{{stats.totalVisits}}</h2>
+              <p>Total Visits</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="success">
+            <ion-card-content>
+              <h2>{{stats.thisMonth}}</h2>
+              <p>This Month</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="warning">
+            <ion-card-content>
+              <h2>{{stats.prescriptions}}</h2>
+              <p>Prescriptions</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="tertiary">
+            <ion-card-content>
+              <h2>{{stats.certificates}}</h2>
+              <p>Certificates</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Chart Toggle -->
+  <div class="chart-toggle">
+    <ion-button fill="clear" size="small" (click)="toggleChart()">
+      <ion-icon [name]="showChart ? 'chevron-up-outline' : 'chevron-down-outline'" slot="start"></ion-icon>
+      {{showChart ? 'Hide' : 'Show'}} Visit Statistics
+    </ion-button>
+  </div>
+
+  <!-- Chart Section -->
+  <div *ngIf="showChart && chartData" class="chart-section">
+    <ion-card>
+      <ion-card-content>
+        <div class="chart-container">
+          <!-- In a real app, you would use a chart library like Chart.js -->
+          <div class="chart-placeholder">
+            <h4>Visits per Month</h4>
+            <div class="chart-bars">
+                  <div *ngFor="let dataPoint of chartData.datasets[0].data; let i = index" class="chart-bar">
+                    <div class="bar-label">{{chartData.labels[i]}}</div>
+                    <div class="bar-container">
+                      <div class="bar-fill" [style.height]="getBarHeight(dataPoint, chartData.datasets[0].data)"></div>
+                    </div>
+                    <div class="bar-value">{{dataPoint}}</div>
+                  </div>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Search and Filter Bar -->
+  <div class="search-filter-bar">
+    <ion-searchbar 
+      placeholder="Search history by symptoms, diagnosis, or treatment..."
+      [value]="searchTerm"
+      (ionInput)="searchHistory($event)"
+      animated
+      clear-icon="close-circle"
+      class="history-searchbar">
+    </ion-searchbar>
+
+    <div class="filter-controls">
+      <ion-button fill="outline" color="medium" (click)="clearFilters()" *ngIf="getFilterCount() > 0 || searchTerm">
+        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+        Clear Filters
+      </ion-button>
+
+      <ion-select 
+        [(ngModel)]="activeFilters.dateRange" 
+        (ionChange)="applyFilters()"
+        interface="action-sheet"
+        placeholder="Time Period"
+        class="filter-select">
+        <ion-select-option *ngFor="let range of dateRanges" [value]="range.value">
+          {{range.label}}
+        </ion-select-option>
+      </ion-select>
+    </div>
+  </div>
+
+  <!-- Quick Visit Type Filters -->
+  <div class="quick-filters" *ngIf="visitTypes.length > 0">
+    <ion-segment [(ngModel)]="activeFilters.visitType" (ionChange)="applyFilters()">
+      <ion-segment-button value="all">
+        All Visits
+      </ion-segment-button>
+      <ion-segment-button *ngFor="let type of visitTypes" [value]="type">
+        <ion-icon [name]="getVisitIcon(type)"></ion-icon>
+        {{type}}
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-section">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading patient history...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredHistory.length === 0" class="empty-state">
+    <ion-icon name="time-outline"></ion-icon>
+    <h3>No History Found</h3>
+    <p *ngIf="searchTerm || getFilterCount() > 0">
+      Try adjusting your search or filters
+    </p>
+    <p *ngIf="!searchTerm && getFilterCount() === 0">
+      No medical history recorded for this patient
+    </p>
+    <ion-button color="primary" (click)="addHistoryEntry()">
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Add First Entry
+    </ion-button>
+  </div>
+
+  <!-- Timeline View -->
+  <div *ngIf="!isLoading && timelineView && filteredHistory.length > 0" class="timeline-view">
+    <div class="timeline-container">
+      <div class="timeline">
+        <div *ngFor="let entry of filteredHistory; let i = index" class="timeline-item">
+          <div class="timeline-marker" [ngClass]="'color-' + getVisitColor(entry.visit_type)">
+            <ion-icon [name]="getVisitIcon(entry.visit_type)"></ion-icon>
+          </div>
+          
+          <div class="timeline-content">
+            <ion-card class="history-card">
+              <ion-card-header>
+                <ion-card-title>
+                  {{entry.visit_type || 'Medical Visit'}}
+                  <span class="visit-date">{{formatDate(entry.visit_date)}}</span>
+                  <span class="visit-time">{{formatTime(entry.visit_date)}}</span>
+                </ion-card-title>
+                <ion-card-subtitle>
+                  <ion-icon name="person-outline"></ion-icon>
+                  {{entry.doctor_name || 'Doctor'}}
+                  <span class="days-ago">• {{getDaysAgo(entry.visit_date)}}</span>
+                </ion-card-subtitle>
+              </ion-card-header>
+              
+              <ion-card-content>
+                <div class="history-details">
+                  <div class="detail-section" *ngIf="entry.symptoms">
+                    <h4>
+                      <ion-icon name="warning-outline"></ion-icon>
+                      Symptoms
+                    </h4>
+                    <p>{{entry.symptoms}}</p>
+                  </div>
+                  
+                  <div class="detail-section" *ngIf="entry.diagnosis">
+                    <h4>
+                      <ion-icon name="document-text-outline"></ion-icon>
+                      Diagnosis
+                    </h4>
+                    <p>{{entry.diagnosis}}</p>
+                  </div>
+                  
+                  <div class="detail-section" *ngIf="entry.treatment">
+                    <h4>
+                      <ion-icon name="medkit-outline"></ion-icon>
+                      Treatment
+                    </h4>
+                    <p>{{entry.treatment}}</p>
+                  </div>
+                  
+                  <div class="detail-section" *ngIf="entry.notes">
+                    <h4>
+                      <ion-icon name="clipboard-outline"></ion-icon>
+                      Notes
+                    </h4>
+                    <p>{{entry.notes}}</p>
+                  </div>
+                </div>
+                
+                <div class="history-actions">
+                  <div class="document-badges">
+                    <ion-badge *ngIf="entry.prescription_id" color="primary" (click)="viewPrescription(entry)">
+                      <ion-icon name="document-text-outline"></ion-icon>
+                      Prescription {{entry.prescription_id}}
+                    </ion-badge>
+                    <ion-badge *ngIf="entry.certificate_id" color="success" (click)="viewCertificate(entry)">
+                      <ion-icon name="medkit-outline"></ion-icon>
+                      Certificate {{entry.certificate_id}}
+                    </ion-badge>
+                  </div>
+                  
+                  <div class="action-buttons">
+                    <ion-button fill="clear" size="small" color="warning" (click)="editHistoryEntry(entry)">
+                      <ion-icon name="create-outline"></ion-icon>
+                    </ion-button>
+                    <ion-button fill="clear" size="small" color="danger" (click)="deleteHistoryEntry(entry)">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </ion-button>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="!isLoading && !timelineView && filteredHistory.length > 0" class="list-view">
+    <ion-list class="history-list">
+      <ion-item-sliding *ngFor="let entry of filteredHistory">
+        <ion-item class="history-item">
+          <ion-avatar slot="start">
+            <div class="history-avatar" [ngClass]="'color-' + getVisitColor(entry.visit_type)">
+              <ion-icon [name]="getVisitIcon(entry.visit_type)"></ion-icon>
+            </div>
+          </ion-avatar>
+          
+          <ion-label>
+            <h2>
+              {{entry.visit_type || 'Medical Visit'}}
+              <ion-badge [color]="getVisitColor(entry.visit_type)" class="visit-type-badge">
+                {{entry.visit_type}}
+              </ion-badge>
+            </h2>
+            
+            <p class="visit-date">
+              <ion-icon name="calendar-outline"></ion-icon>
+              {{formatDate(entry.visit_date)}} • {{formatTime(entry.visit_date)}}
+              <span class="days-ago">({{getDaysAgo(entry.visit_date)}})</span>
+            </p>
+            
+            <p class="symptoms" *ngIf="entry.symptoms">
+              <ion-icon name="warning-outline"></ion-icon>
+              {{entry.symptoms}}
+            </p>
+            
+            <p class="diagnosis" *ngIf="entry.diagnosis">
+              <ion-icon name="document-text-outline"></ion-icon>
+              {{entry.diagnosis}}
+            </p>
+            
+            <p class="doctor">
+              <ion-icon name="person-outline"></ion-icon>
+              {{entry.doctor_name || 'Doctor'}}
+            </p>
+            
+            <div class="document-info">
+              <span *ngIf="entry.prescription_id" class="prescription-info">
+                <ion-icon name="document-text-outline" color="primary"></ion-icon>
+                Prescription: {{entry.prescription_id}}
+              </span>
+              <span *ngIf="entry.certificate_id" class="certificate-info">
+                <ion-icon name="medkit-outline" color="success"></ion-icon>
+                Certificate: {{entry.certificate_id}}
+              </span>
+            </div>
+          </ion-label>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="warning" (click)="editHistoryEntry(entry)">
+            <ion-icon slot="top" name="create-outline"></ion-icon>
+            Edit
+          </ion-item-option>
+          <ion-item-option color="primary" (click)="viewPrescription(entry)" *ngIf="entry.prescription_id">
+            <ion-icon slot="top" name="document-text-outline"></ion-icon>
+            Prescription
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="deleteHistoryEntry(entry)">
+            <ion-icon slot="top" name="trash-outline"></ion-icon>
+            Delete
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+
+  <!-- Add History Button -->
+  <div *ngIf="!isLoading && filteredHistory.length > 0" class="add-history-section">
+    <ion-button 
+      expand="block" 
+      color="primary" 
+      (click)="addHistoryEntry()"
+      class="add-history-button">
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Add New History Entry
+    </ion-button>
+  </div>
+
+  <!-- Refresh Content -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+</ion-content>

@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Select Patient</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-searchbar 
+    placeholder="Search patients by name, mobile, or ID"
+    (ionInput)="searchPatients($event)"
+    animated
+    clear-icon="close-circle">
+  </ion-searchbar>
+
+  <ion-list>
+    <ion-item *ngFor="let patient of filteredPatients" button (click)="selectPatient(patient)">
+      <ion-avatar slot="start">
+        <div class="patient-avatar">
+          {{getPatientInitials(patient.full_name)}}
+        </div>
+      </ion-avatar>
+      <ion-label>
+        <h2>{{patient.full_name}}</h2>
+        <p>
+          {{patient.age}} yrs • {{patient.sex}}
+          <span *ngIf="patient.mobile"> • {{patient.mobile}}</span>
+        </p>
+        <p *ngIf="patient.patient_id">ID: {{patient.patient_id}}</p>
+        <p *ngIf="patient.last_visit" class="last-visit">
+          Last visit: {{patient.last_visit | date:'mediumDate'}}
+        </p>
+      </ion-label>
+      <ion-badge slot="end" color="primary" *ngIf="patient.prescription_count">
+        {{patient.prescription_count}} visits
+      </ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="filteredPatients.length === 0" class="empty-state">
+    <ion-icon name="people-outline"></ion-icon>
+    <p>No patients found</p>
+    <p class="small">Try a different search term</p>
+  </div>
+</ion-content>

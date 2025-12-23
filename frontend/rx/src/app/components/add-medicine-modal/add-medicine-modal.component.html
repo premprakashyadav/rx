@@ -1,0 +1,134 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Add Medicine</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="modal-content">
+  <ion-card class="form-card">
+    <ion-card-header>
+      <ion-card-title>Medicine Details</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form [formGroup]="medicineForm">
+        <!-- Medicine Name -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Medicine Name *</ion-label>
+          <ion-input
+            formControlName="name"
+            placeholder="e.g., Amoxicillin"
+            type="text"
+          ></ion-input>
+        </ion-item>
+        <ion-text
+          *ngIf="medicineForm.get('name')?.invalid && medicineForm.get('name')?.touched"
+          color="danger"
+          class="error-text"
+        >
+          <p>Medicine name is required (min. 2 characters)</p>
+        </ion-text>
+
+        <!-- Dosage -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Dosage *</ion-label>
+          <ion-input
+            formControlName="dosage"
+            placeholder="e.g., 500mg"
+            type="text"
+          ></ion-input>
+        </ion-item>
+        <ion-text
+          *ngIf="medicineForm.get('dosage')?.invalid && medicineForm.get('dosage')?.touched"
+          color="danger"
+          class="error-text"
+        >
+          <p>Dosage is required</p>
+        </ion-text>
+
+        <!-- Common Dosages Quick Select -->
+        <div class="quick-select">
+          <ion-chip
+            *ngFor="let dosage of commonDosages"
+            (click)="medicineForm.get('dosage')?.setValue(dosage)"
+            [outline]="medicineForm.get('dosage')?.value !== dosage"
+          >
+            {{ dosage }}
+          </ion-chip>
+        </div>
+
+        <!-- Frequency -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Frequency *</ion-label>
+          <ion-select formControlName="frequency" placeholder="Select frequency">
+            <ion-select-option
+              *ngFor="let freq of frequencyOptions"
+              [value]="freq.value"
+            >
+              {{ freq.label }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-text
+          *ngIf="medicineForm.get('frequency')?.invalid && medicineForm.get('frequency')?.touched"
+          color="danger"
+          class="error-text"
+        >
+          <p>Frequency is required</p>
+        </ion-text>
+
+        <!-- Duration -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Duration (Optional)</ion-label>
+          <ion-select formControlName="duration" placeholder="Select duration">
+            <ion-select-option value="">None</ion-select-option>
+            <ion-select-option
+              *ngFor="let dur of durationOptions"
+              [value]="dur.value"
+            >
+              {{ dur.label }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Instructions -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Instructions (Optional)</ion-label>
+          <ion-textarea
+            formControlName="instructions"
+            placeholder="e.g., Take with food, avoid dairy products"
+            rows="3"
+          ></ion-textarea>
+        </ion-item>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons>
+      <ion-button expand="block" fill="clear" (click)="cancel()">
+        Cancel
+      </ion-button>
+      <ion-button
+        expand="block"
+        [disabled]="medicineForm.invalid || isLoading"
+        (click)="addMedicine()"
+        class="add-button"
+      >
+        <ion-spinner
+          *ngIf="isLoading"
+          name="crescent"
+          class="spinner"
+        ></ion-spinner>
+        {{ isLoading ? 'Adding...' : 'Add Medicine' }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

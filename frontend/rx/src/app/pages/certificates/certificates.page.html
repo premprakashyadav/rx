@@ -1,0 +1,327 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Certificates</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleViewMode()">
+        <ion-icon [name]="viewMode === 'list' ? 'grid-outline' : 'list-outline'"></ion-icon>
+      </ion-button>
+      <ion-button (click)="exportToCSV()">
+        <ion-icon name="download-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Statistics Cards -->
+  <div class="stats-cards">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="primary">
+            <ion-card-content>
+              <h2>{{getCertificateStats().total}}</h2>
+              <p>Total</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="primary">
+            <ion-card-content>
+              <h2>{{getCertificateStats().medical}}</h2>
+              <p>Medical</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" color="success">
+            <ion-card-content>
+              <h2>{{getCertificateStats().fitness}}</h2>
+              <p>Fitness</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <ion-card class="stat-card" [color]="getCertificateStats().expired > 0 ? 'danger' : 'success'">
+            <ion-card-content>
+              <h2>{{getCertificateStats().valid}}</h2>
+              <p>Valid</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Search and Filter Bar -->
+  <div class="search-filter-bar">
+    <ion-searchbar 
+      placeholder="Search certificates..."
+      [value]="searchTerm"
+      (ionInput)="searchCertificates($event)"
+      animated
+      clear-icon="close-circle"
+      class="certificate-searchbar">
+    </ion-searchbar>
+
+    <div class="filter-controls">
+      <ion-button fill="outline" color="medium" (click)="openFilters()">
+        <ion-icon name="filter-outline" slot="start"></ion-icon>
+        Filters
+        <ion-badge color="primary" *ngIf="getFilterCount() > 0">
+          {{getFilterCount()}}
+        </ion-badge>
+      </ion-button>
+
+      <ion-select 
+        [(ngModel)]="sortBy" 
+        (ionChange)="applyFilters()"
+        interface="action-sheet"
+        placeholder="Sort by"
+        class="sort-select">
+        <ion-select-option *ngFor="let option of sortOptions" [value]="option.value">
+          {{option.label}}
+        </ion-select-option>
+      </ion-select>
+
+      <ion-button fill="clear" color="medium" (click)="clearFilters()" *ngIf="getFilterCount() > 0 || searchTerm">
+        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+        Clear All
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Quick Certificate Type Filters -->
+  <div class="quick-filters">
+    <ion-segment [(ngModel)]="activeFilters.certificateType" (ionChange)="applyFilters()">
+      <ion-segment-button value="all">
+        All Types
+      </ion-segment-button>
+      <ion-segment-button value="medical">
+        <ion-icon name="medkit-outline"></ion-icon>
+        Medical
+      </ion-segment-button>
+      <ion-segment-button value="fitness">
+        <ion-icon name="body-outline"></ion-icon>
+        Fitness
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Quick Date Filters -->
+  <div class="quick-date-filters">
+    <ion-segment [(ngModel)]="activeFilters.dateRange" (ionChange)="applyFilters()">
+      <ion-segment-button *ngFor="let range of dateRanges" [value]="range.value">
+        {{range.label}}
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-section">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading certificates...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredCertificates.length === 0" class="empty-state">
+    <ion-icon name="document-text-outline"></ion-icon>
+    <h3>No Certificates Found</h3>
+    <p *ngIf="searchTerm || getFilterCount() > 0">
+      Try adjusting your search or filters
+    </p>
+    <p *ngIf="!searchTerm && getFilterCount() === 0">
+      No certificates created yet
+    </p>
+    <ion-button color="primary" routerLink="/create-certificate">
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Create First Certificate
+    </ion-button>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="!isLoading && viewMode === 'list' && filteredCertificates.length > 0">
+    <ion-list class="certificates-list">
+      <ion-item-sliding *ngFor="let certificate of filteredCertificates">
+        <ion-item 
+          class="certificate-item" 
+          [color]="getCertificateColor(certificate.certificate_type)"
+          (click)="viewCertificate(certificate)">
+          
+          <ion-avatar slot="start">
+            <div class="certificate-avatar" [class]="certificate.certificate_type">
+              <ion-icon [name]="getCertificateIcon(certificate.certificate_type)"></ion-icon>
+            </div>
+          </ion-avatar>
+          
+          <ion-label>
+            <h2>
+              {{certificate.patient_name}}
+              <span class="patient-age">({{certificate.patient_age}} yrs)</span>
+              <ion-badge [color]="getStatusColor(getCertificateStatus(certificate))" class="status-badge">
+                {{getCertificateStatus(certificate)}}
+              </ion-badge>
+            </h2>
+            
+            <p class="certificate-id">
+              <ion-icon [name]="getCertificateIcon(certificate.certificate_type)"></ion-icon>
+              {{certificate.certificate_id}} • {{getCertificateTypeLabel(certificate.certificate_type)}}
+            </p>
+            
+            <p class="certificate-summary">
+              {{getCertificateSummary(certificate)}}
+            </p>
+            
+            <div class="certificate-meta">
+              <span class="issue-date">
+                <ion-icon name="calendar-outline"></ion-icon>
+                {{certificate.issue_date | date:'mediumDate'}}
+              </span>
+              
+              <span class="valid-until">
+                <ion-icon name="time-outline"></ion-icon>
+                Valid until: {{certificate.valid_until | date:'shortDate'}}
+              </span>
+              
+              <span class="diagnosis" *ngIf="certificate.diagnosis">
+                <ion-icon name="medical-outline"></ion-icon>
+                {{certificate.diagnosis}}
+              </span>
+            </div>
+          </ion-label>
+          
+          <ion-note slot="end" class="days-remaining" [color]="getStatusColor(getCertificateStatus(certificate))">
+            {{getDaysRemaining(certificate)}}
+          </ion-note>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="primary" (click)="downloadCertificate(certificate)">
+            <ion-icon slot="top" name="download-outline"></ion-icon>
+            Download
+          </ion-item-option>
+          <ion-item-option color="success" (click)="shareCertificate(certificate)">
+            <ion-icon slot="top" name="share-outline"></ion-icon>
+            Share
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="deleteCertificate(certificate)">
+            <ion-icon slot="top" name="trash-outline"></ion-icon>
+            Delete
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+
+  <!-- Grid View -->
+  <div *ngIf="!isLoading && viewMode === 'grid' && filteredCertificates.length > 0" class="certificates-grid">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let certificate of filteredCertificates">
+          <ion-card 
+            class="certificate-card" 
+            [color]="getCertificateColor(certificate.certificate_type)">
+            
+            <div class="card-header">
+              <div class="header-icon">
+                <ion-icon [name]="getCertificateIcon(certificate.certificate_type)"></ion-icon>
+              </div>
+              <div class="header-content">
+                <h3>{{certificate.patient_name}}</h3>
+                <p class="patient-details">
+                  {{certificate.patient_age}} yrs • {{certificate.certificate_id}}
+                </p>
+              </div>
+              <ion-badge [color]="getStatusColor(getCertificateStatus(certificate))" class="status-badge">
+                {{getCertificateStatus(certificate)}}
+              </ion-badge>
+            </div>
+
+            <ion-card-content>
+              <div class="certificate-content">
+                <div class="type-section">
+                  <h4>
+                    {{getCertificateTypeLabel(certificate.certificate_type)}}
+                  </h4>
+                </div>
+                
+                <div class="summary-section">
+                  <p>{{getCertificateSummary(certificate)}}</p>
+                </div>
+                
+                <div class="diagnosis-section" *ngIf="certificate.diagnosis">
+                  <p><strong>Diagnosis:</strong> {{certificate.diagnosis}}</p>
+                </div>
+                
+                <div class="details-section">
+                  <div class="detail-item">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>Issued: {{certificate.issue_date | date:'shortDate'}}</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>Valid until: {{certificate.valid_until | date:'shortDate'}}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-footer">
+               <div class="days-remaining" 
+     [ngStyle]="{'color': getStatusColor(getCertificateStatus(certificate))}">
+  {{getDaysRemaining(certificate)}}
+</div>
+                
+                <div class="card-actions">
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    color="primary"
+                    (click)="downloadCertificate(certificate)">
+                    <ion-icon name="download-outline"></ion-icon>
+                  </ion-button>
+                  
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    color="success"
+                    (click)="shareCertificate(certificate)">
+                    <ion-icon name="share-outline"></ion-icon>
+                  </ion-button>
+                  
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    color="danger"
+                    (click)="deleteCertificate(certificate)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Create New Certificate Button -->
+  <div *ngIf="!isLoading && filteredCertificates.length > 0" class="create-new-section">
+    <ion-button 
+      expand="block" 
+      color="primary" 
+      routerLink="/create-certificate"
+      class="create-new-button">
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Create New Certificate
+    </ion-button>
+  </div>
+
+  <!-- Refresh Content -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+</ion-content>

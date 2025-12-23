@@ -1,0 +1,391 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>My Profile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleEdit()" *ngIf="!isEditing">
+        <ion-icon name="create-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="saveProfile()" *ngIf="isEditing" color="success">
+        <ion-icon name="save-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="toggleEdit()" *ngIf="isEditing" color="medium">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="profile-container">
+    <!-- View Mode -->
+    <div *ngIf="!isEditing && profile" class="view-mode">
+      <div class="profile-header">
+        <div class="avatar-section">
+          <ion-avatar>
+            <ion-icon name="person-circle-outline"></ion-icon>
+          </ion-avatar>
+          <div class="avatar-info">
+            <h1>Dr. {{profile.full_name}}</h1>
+            <p>{{profile.qualification}} | {{profile.specialization}}</p>
+            <p class="reg-number">Reg. No: {{profile.registration_number}}</p>
+          </div>
+        </div>
+      </div>
+
+      <ion-card class="info-card">
+        <ion-card-header>
+          <ion-card-title>Clinic Information</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list lines="none">
+            <ion-item>
+              <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Clinic/Hospital Name</h3>
+                <p>{{profile.clinic_name}}</p>
+              </ion-label>
+            </ion-item>
+            
+            <ion-item>
+              <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Address</h3>
+                <p>{{profile.clinic_address}}</p>
+              </ion-label>
+            </ion-item>
+            
+            <ion-item>
+              <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Clinic Phone</h3>
+                <p>{{profile.clinic_phone}}</p>
+              </ion-label>
+            </ion-item>
+            
+            <ion-item>
+              <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Email</h3>
+                <p>{{profile.email}}</p>
+              </ion-label>
+            </ion-item>
+            
+            <ion-item>
+              <ion-icon name="phone-portrait-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Mobile</h3>
+                <p>{{profile.mobile}}</p>
+              </ion-label>
+            </ion-item>
+            
+            <ion-item>
+              <ion-icon name="time-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Experience</h3>
+                <p>{{profile.experience_years || '0'}} years</p>
+              </ion-label>
+            </ion-item>
+            
+            <ion-item>
+              <ion-icon name="cash-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Consultation Fee</h3>
+                <p>₹{{profile.consultation_fee || '0'}}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="signatures-card">
+        <ion-card-header>
+          <ion-card-title>Digital Signatures & Stamps</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="signature-grid">
+            <div class="signature-item" *ngIf="profile.digital_signature_path">
+              <h4>Digital Signature</h4>
+              <img [src]="profile.digital_signature_path" alt="Digital Signature" class="signature-image">
+            </div>
+            
+            <div class="signature-item" *ngIf="profile.stamp_image_path">
+              <h4>Stamp</h4>
+              <img [src]="profile.stamp_image_path" alt="Stamp" class="signature-image">
+            </div>
+            
+            <div class="signature-item" *ngIf="profile.letterhead_image_path">
+              <h4>Letterhead</h4>
+              <img [src]="profile.letterhead_image_path" alt="Letterhead" class="signature-image">
+            </div>
+          </div>
+          
+          <div *ngIf="!profile.digital_signature_path && !profile.stamp_image_path && !profile.letterhead_image_path" class="no-signatures">
+            <ion-icon name="image-outline"></ion-icon>
+            <p>No signatures or stamps uploaded</p>
+            <p class="small">Upload signatures for professional prescriptions</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Edit Mode -->
+    <form [formGroup]="profileForm" *ngIf="isEditing" (ngSubmit)="saveProfile()">
+      <ion-card class="edit-card">
+        <ion-card-header>
+          <ion-card-title>Personal Information</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Full Name</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="full_name"
+                    placeholder="Dr. First Last">
+                  </ion-input>
+                  <ion-icon name="person-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Qualification</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="qualification"
+                    placeholder="MBBS, MD, etc.">
+                  </ion-input>
+                  <ion-icon name="school-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Specialization</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="specialization"
+                    placeholder="Cardiology, General Physician, etc.">
+                  </ion-input>
+                  <ion-icon name="medkit-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Registration Number</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="registration_number"
+                    placeholder="Medical council registration">
+                  </ion-input>
+                  <ion-icon name="document-text-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="edit-card">
+        <ion-card-header>
+          <ion-card-title>Clinic Information</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Clinic/Hospital Name</ion-label>
+                  <ion-input 
+                    type="text" 
+                    formControlName="clinic_name"
+                    placeholder="Name of your clinic">
+                  </ion-input>
+                  <ion-icon name="business-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Clinic Address</ion-label>
+                  <ion-textarea 
+                    formControlName="clinic_address"
+                    placeholder="Complete clinic address"
+                    rows="3">
+                  </ion-textarea>
+                  <ion-icon name="location-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Clinic Phone</ion-label>
+                  <ion-input 
+                    type="tel" 
+                    formControlName="clinic_phone"
+                    placeholder="Clinic contact number">
+                  </ion-input>
+                  <ion-icon name="call-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Email</ion-label>
+                  <ion-input 
+                    type="email" 
+                    formControlName="email"
+                    placeholder="Your email address">
+                  </ion-input>
+                  <ion-icon name="mail-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12" size-md="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Mobile Number</ion-label>
+                  <ion-input 
+                    type="tel" 
+                    formControlName="mobile"
+                    placeholder="Your personal mobile">
+                  </ion-input>
+                  <ion-icon name="phone-portrait-outline" slot="start"></ion-icon>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="3">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Experience (Years)</ion-label>
+                  <ion-input 
+                    type="number" 
+                    formControlName="experience_years"
+                    placeholder="0">
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+
+              <ion-col size="12" size-md="3">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Consultation Fee</ion-label>
+                  <ion-input 
+                    type="number" 
+                    formControlName="consultation_fee"
+                    placeholder="₹0">
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="edit-card">
+        <ion-card-header>
+          <ion-card-title>Digital Signatures & Stamps</ion-card-title>
+          <ion-card-subtitle>Upload images for professional documents</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="signature-upload-grid">
+            <!-- Digital Signature -->
+            <div class="upload-item">
+              <h4>Digital Signature</h4>
+              <p>Upload your digital signature (PNG with transparent background)</p>
+              
+              <div class="upload-area" *ngIf="!signaturePreview">
+                <input type="file" #signatureInput (change)="onSignatureSelected($event)" accept="image/*" hidden>
+                <div class="upload-placeholder" (click)="signatureInput.click()">
+                  <ion-icon name="create-outline"></ion-icon>
+                  <p>Click to upload signature</p>
+                </div>
+              </div>
+              
+              <div class="preview-area" *ngIf="signaturePreview">
+                <img [src]="signaturePreview" alt="Signature Preview" class="preview-image">
+                <div class="preview-actions">
+                  <ion-button size="small" color="medium" (click)="removeSignature()">
+                    <ion-icon name="trash-outline"></ion-icon>
+                    Remove
+                  </ion-button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stamp -->
+            <div class="upload-item">
+              <h4>Stamp Image</h4>
+              <p>Upload your clinic stamp (PNG with transparent background)</p>
+              
+              <div class="upload-area" *ngIf="!stampPreview">
+                <input type="file" #stampInput (change)="onStampSelected($event)" accept="image/*" hidden>
+                <div class="upload-placeholder" (click)="stampInput.click()">
+                  <ion-icon name="pricetag-outline"></ion-icon>
+                  <p>Click to upload stamp</p>
+                </div>
+              </div>
+              
+              <div class="preview-area" *ngIf="stampPreview">
+                <img [src]="stampPreview" alt="Stamp Preview" class="preview-image">
+                <div class="preview-actions">
+                  <ion-button size="small" color="medium" (click)="removeStamp()">
+                    <ion-icon name="trash-outline"></ion-icon>
+                    Remove
+                  </ion-button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Letterhead -->
+            <div class="upload-item">
+              <h4>Letterhead</h4>
+              <p>Upload your clinic letterhead (JPG/PNG)</p>
+              
+              <div class="upload-area" *ngIf="!letterheadPreview">
+                <input type="file" #letterheadInput (change)="onLetterheadSelected($event)" accept="image/*" hidden>
+                <div class="upload-placeholder" (click)="letterheadInput.click()">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                  <p>Click to upload letterhead</p>
+                </div>
+              </div>
+              
+              <div class="preview-area" *ngIf="letterheadPreview">
+                <img [src]="letterheadPreview" alt="Letterhead Preview" class="preview-image">
+                <div class="preview-actions">
+                  <ion-button size="small" color="medium" (click)="removeLetterhead()">
+                    <ion-icon name="trash-outline"></ion-icon>
+                    Remove
+                  </ion-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <div class="action-buttons">
+        <ion-button expand="block" type="submit" color="primary" [disabled]="profileForm.invalid">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          Save Changes
+        </ion-button>
+        
+        <ion-button expand="block" fill="clear" color="medium" (click)="toggleEdit()">
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cancel
+        </ion-button>
+      </div>
+    </form>
+  </div>
+</ion-content>

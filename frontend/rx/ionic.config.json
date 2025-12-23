@@ -1,0 +1,7 @@
+{
+  "name": "x-prescription",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

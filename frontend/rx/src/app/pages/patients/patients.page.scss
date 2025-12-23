@@ -1,0 +1,308 @@
+.patients-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.search-filter-bar {
+  margin-bottom: 16px;
+  
+  .patient-searchbar {
+    padding: 0;
+    margin-bottom: 12px;
+  }
+  
+  .filter-buttons {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.filters-card {
+  border-radius: 12px;
+  margin-bottom: 16px;
+  
+  ion-card-content {
+    padding: 16px;
+  }
+  
+  ion-item {
+    --background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.stats-card {
+  border-radius: 12px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, #6a11cb 100%);
+  color: white;
+  
+  ion-card-content {
+    padding: 20px;
+  }
+  
+  .stat-item {
+    text-align: center;
+    
+    h3 {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: white;
+    }
+    
+    p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+.add-patient-section {
+  margin-bottom: 24px;
+  
+  .add-patient-button {
+    height: 50px;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+}
+
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  
+  ion-spinner {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    font-size: 16px;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  
+  ion-icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0 0 20px 0;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.patients-list {
+  background: transparent;
+  
+  .patient-item {
+    --background: white;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    --padding-start: 16px;
+    --inner-padding-end: 16px;
+    
+    .patient-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    
+    h2 {
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin-bottom: 8px;
+    }
+    
+    p {
+      display: flex;
+      align-items: center;
+      color: var(--ion-color-medium);
+      font-size: 14px;
+      margin: 4px 0;
+      
+      ion-icon {
+        margin-right: 8px;
+        font-size: 16px;
+        min-width: 20px;
+      }
+    }
+    
+    ion-badge {
+      padding: 6px 12px;
+      font-weight: 500;
+    }
+  }
+}
+
+.patients-grid {
+  .patient-card {
+    border-radius: 12px;
+    margin-bottom: 16px;
+    height: 100%;
+    
+    .patient-card-header {
+      background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
+      padding: 20px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      
+      .patient-avatar-large {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+      }
+      
+      .patient-card-title {
+        flex: 1;
+        
+        h3 {
+          color: white;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+          font-size: 18px;
+        }
+        
+        .patient-id {
+          color: rgba(255, 255, 255, 0.9);
+          font-size: 12px;
+          margin: 0;
+        }
+      }
+    }
+    
+    ion-card-content {
+      padding: 16px;
+      
+      .patient-info {
+        p {
+          display: flex;
+          align-items: center;
+          color: var(--ion-color-medium);
+          font-size: 14px;
+          margin: 8px 0;
+          
+          ion-icon {
+            margin-right: 8px;
+            font-size: 16px;
+            min-width: 20px;
+            color: var(--ion-color-primary);
+          }
+        }
+      }
+      
+      .patient-stats {
+        margin: 16px 0;
+        text-align: center;
+        
+        ion-badge {
+          padding: 8px 16px;
+          font-weight: 500;
+          
+          ion-icon {
+            margin-right: 6px;
+          }
+        }
+      }
+      
+      .patient-actions {
+        ion-button[expand="block"] {
+          margin-bottom: 12px;
+        }
+        
+        .action-buttons {
+          display: flex;
+          justify-content: space-between;
+        }
+      }
+    }
+  }
+}
+
+// Avatar color generator
+:host {
+  --avatar-colors: [
+    '#4CAF50', '#2196F3', '#FF9800', '#9C27B0', 
+    '#F44336', '#009688', '#673AB7', '#3F51B5'
+  ];
+}
+
+
+@media (max-width: 768px) {
+  .patients-container {
+    padding: 8px;
+  }
+  
+  .stats-card {
+    .stat-item {
+      h3 {
+        font-size: 24px;
+      }
+      
+      p {
+        font-size: 12px;
+      }
+    }
+  }
+  
+  .patient-card {
+    .patient-card-header {
+      padding: 16px;
+      flex-direction: column;
+      text-align: center;
+      
+      .patient-avatar-large {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+      }
+    }
+  }
+}
